@@ -26,6 +26,21 @@
         {% endblock %}
     </head>
     <body>
+        <!-- Navigation bar -->
+        <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+            <div class="container-fluid">
+                <!-- Title -->
+                <a class="navbar-brand" href="/">NFQ Pulse</a>
+                <!-- Links -->
+                <div class="navbar-nav">
+                    <!-- Home page link -->
+                    <a class="nav-item nav-link" href="/">Home</a>
+                    <!-- Admin panel link -->
+                    <a class="nav-item nav-link" href="/">Admin panel</a>
+                </div>
+            </div>
+        </nav>
+        <!-- Page container -->
         <div class="container-fluid">
             {% block body %}{% endblock %}
         </div>
