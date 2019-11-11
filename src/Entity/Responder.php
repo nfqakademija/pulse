@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,10 +29,22 @@ class Responder
     private $email;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Admin")
-     * @ORM\JoinColumn(name="admin_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="responders")
+     * @ORM\JoinColumn(nullable=false)
      */
-    private $admin;
+    private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="responder", orphanRemoval=true)
+     */
+    private $answers;
+
+    public function __construct()
+    {
+        $this->answers = new ArrayCollection();
+    }
+
+
 
     public function getId(): ?int
     {
@@ -47,11 +61,6 @@ class Responder
         return $this->email;
     }
 
-    public function getAdmin(): ?Admin
-    {
-        return $this->admin;
-    }
-
     public function setName(?string $name)
     {
         $this->name = $name;
@@ -62,8 +71,50 @@ class Responder
         $this->email = $email;
     }
 
-    public function setAdmin(?Admin $admin)
+    public function getUser(): ?User
     {
-        $this->admin = $admin;
+        return $this->user;
     }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Answer[]
+     */
+    public function getAnswers(): Collection
+    {
+        return $this->answers;
+    }
+
+    public function addAnswer(Answer $answer): self
+    {
+        if (!$this->answers->contains($answer)) {
+            $this->answers[] = $answer;
+            $answer->setResponder($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnswer(Answer $answer): self
+    {
+        if ($this->answers->contains($answer)) {
+            $this->answers->removeElement($answer);
+            // set the owning side to null (unless already changed)
+            if ($answer->getResponder() === $this) {
+                $answer->setResponder(null);
+            }
+        }
+
+        return $this;
+    }
+    public function __toString() {
+        return "This is toString method of responder obj";
+    }
+
 }

@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -32,10 +34,20 @@ class Question
     private $answers = [];
 
     /**
-     * @ORM\ManyToOne(targetEntity="Form")
-     * @ORM\JoinColumn(name="form_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="Poll")
+     * @ORM\JoinColumn(name="poll_id", referencedColumnName="id")
      */
-    private $form;
+    private $poll;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="question")
+     */
+    private $responses;
+
+    public function __construct()
+    {
+        $this->responses = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -57,9 +69,9 @@ class Question
         return $this->answers;
     }
 
-    public function getForm(): ?Form
+    public function getForm(): ?Poll
     {
-        return $this->form;
+        return $this->poll;
     }
 
     public function setQuestionNumber(?string $question_number)
@@ -77,8 +89,42 @@ class Question
         $this->answers = $answers;
     }
 
-    public function setForm(?Form $form)
+    public function setForm(?Poll $pool)
     {
-        $this->form = $form;
+        $this->poll = $pool;
+    }
+
+    /**
+     * @return Collection|Answer[]
+     */
+    public function getResponses(): Collection
+    {
+        return $this->responses;
+    }
+
+    public function addResponse(Answer $response): self
+    {
+        if (!$this->responses->contains($response)) {
+            $this->responses[] = $response;
+            $response->setQuestion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeResponse(Answer $response): self
+    {
+        if ($this->responses->contains($response)) {
+            $this->responses->removeElement($response);
+            // set the owning side to null (unless already changed)
+            if ($response->getQuestion() === $this) {
+                $response->setQuestion(null);
+            }
+        }
+
+        return $this;
+    }
+    public function __toString() {
+        return "This is toString method of question obj";
     }
 }
