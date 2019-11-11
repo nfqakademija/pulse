@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Poll{% endblock %}
+
+{% block body %}
+    <h1>Edit Poll</h1>
+
+    {{ include('poll/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('poll_index') }}">back to list</a>
+
+    {{ include('poll/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,7 @@
+easy_admin:
+    entities:
+        # List the entity class name you want to manage
+        - App\Entity\Responder
+        - App\Entity\Question
+        - App\Entity\Poll
+        - App\Entity\User

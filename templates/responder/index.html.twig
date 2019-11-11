@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Responder index{% endblock %}
+
+{% block body %}
+    <h1>Responder index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for responder in responders %}
+            <tr>
+                <td>{{ responder.id }}</td>
+                <td>{{ responder.name }}</td>
+                <td>{{ responder.email }}</td>
+                <td>
+                    <a href="{{ path('responder_show', {'id': responder.id}) }}">show</a>
+                    <a href="{{ path('responder_edit', {'id': responder.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('responder_new') }}">Create new</a>
+{% endblock %}
