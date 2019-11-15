@@ -69,7 +69,7 @@ class Question
         return $this->answers;
     }
 
-    public function getForm(): ?Poll
+    public function getPoll(): ?Poll
     {
         return $this->poll;
     }
@@ -89,9 +89,9 @@ class Question
         $this->answers = $answers;
     }
 
-    public function setForm(?Poll $pool)
+    public function setPoll(?Poll $poll)
     {
-        $this->poll = $pool;
+        $this->poll = $poll;
     }
 
     /**
