@@ -45,6 +45,10 @@ class Question
     private $options;
 
 
+
+
+
+
     public function __construct()
     {
         $this->answers = new ArrayCollection();
@@ -76,7 +80,7 @@ class Question
         $this->question_number = $question_number;
     }
 
-    public function setName(?string $question)
+    public function setQuestion(?string $question)
     {
         $this->question = $question;
     }
@@ -123,7 +127,7 @@ class Question
     }
     public function __toString()
     {
-        return "This is toString method of question obj";
+        return $this->question;
     }
 
     /**
@@ -156,4 +160,6 @@ class Question
 
         return $this;
     }
+
+
 }
