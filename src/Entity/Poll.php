@@ -58,8 +58,9 @@ class Poll
     }
 
 
-    public function __toString() {
-        return "This is toString method of poll obj";
+    public function __toString()
+    {
+        return $this->name;
     }
 
 

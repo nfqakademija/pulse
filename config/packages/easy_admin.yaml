@@ -1,7 +1,68 @@
 easy_admin:
-    entities:
-        # List the entity class name you want to manage
-        - App\Entity\Responder
-        - App\Entity\Question
-        - App\Entity\Poll
-        - App\Entity\User
+  design:
+    menu:
+      - {label: "Entities"}
+      - label: "Questions"
+        children:
+          - {entity: Question, label: "List", icon: "th-list" }
+          - {entity: Question, label: "Add", icon: "plus", params: {action: "new"}}
+          - {entity: Question, label: "Add to poll", icon: "plus", params: {action: "comming soon"}}
+      - label: "Responder"
+        children:
+          - {entity: Responder, label: "List", icon: "th-list" }
+          - {entity: Responder, label: "Add", icon: "plus", params: {action: "new"}}
+      - label: "Poll"
+        children:
+          - {entity: Poll, label: "List", icon: "th-list" }
+          - {entity: Poll, label: "Add", icon: "plus", params: {action: "new"}}
+          - {entity: Poll, label: "Results", icon: "plus", params: {action: "show"}}
+      - {label: "Settings"}
+      - {entity: User, icon: "user"}
+  site_name: "Nfq Pulse"
+  user:
+    name_property_path: "email"
+    display_name: true
+  entities:
+    # List the entity class name you want to manage
+    Responder:
+      class: App\Entity\Responder
+      label: "Responders"
+      form:
+        fields:
+#          - {type: "group", icon: "pencil", label: "Basic info", css_class: 'col-lg-7'}
+          - name
+          - {property: 'name', type: 'text'}
+          - email
+          - {property: 'email', type: 'email'}
+          - user
+      list:
+        fields:
+          - id
+          - name
+          - email
+          - user
+        actions: ['show', "edit", "delete"]
+        batch_actions: ["delete"]
+        filters: ["user"]
+      show:
+        fields:
+          - id
+          - name
+          - email
+          - user
+    Question:
+      class: App\Entity\Question
+ 
+
+
+
+
+
+    Poll:
+      class: App\Entity\Poll
+    User:
+      class: App\Entity\User
+    Answer:
+      class: App\Entity\Answer
+    Option:
+      class: App\Entity\Option

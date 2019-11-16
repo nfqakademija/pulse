@@ -19,19 +19,14 @@ class Question
     private $id;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="integer")
      */
     private $question_number;
 
     /**
      * @ORM\Column(type="text")
      */
-    private $name;
-
-    /**
-     * @ORM\Column(type="json")
-     */
-    private $answers = [];
+    private $question;
 
     /**
      * @ORM\ManyToOne(targetEntity="Poll")
@@ -42,11 +37,18 @@ class Question
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="question")
      */
-    private $responses;
+    private $answers;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Option", mappedBy="question", orphanRemoval=true)
+     */
+    private $options;
+
 
     public function __construct()
     {
-        $this->responses = new ArrayCollection();
+        $this->answers = new ArrayCollection();
+        $this->options = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -54,34 +56,29 @@ class Question
         return $this->id;
     }
 
-    public function getQuestionNumber(): ?string
+    public function getQuestionNumber(): ?int
     {
         return $this->question_number;
     }
 
-    public function getName(): ?string
+    public function getQuestion(): ?string
     {
-        return $this->name;
+        return $this->question;
     }
 
-    public function getAnswers(): ?array
-    {
-        return $this->answers;
-    }
-
-    public function getForm(): ?Poll
+    public function getPoll(): ?Poll
     {
         return $this->poll;
     }
 
-    public function setQuestionNumber(?string $question_number)
+    public function setQuestionNumber(?int $question_number)
     {
         $this->question_number = $question_number;
     }
 
-    public function setName(?string $name)
+    public function setName(?string $question)
     {
-        $this->name = $name;
+        $this->question = $question;
     }
 
     public function setAnswers(?array $answers)
@@ -89,7 +86,7 @@ class Question
         $this->answers = $answers;
     }
 
-    public function setForm(?Poll $pool)
+    public function setPoll(?Poll $pool)
     {
         $this->poll = $pool;
     }
@@ -97,34 +94,66 @@ class Question
     /**
      * @return Collection|Answer[]
      */
-    public function getResponses(): Collection
+    public function getAnswers(): Collection
     {
-        return $this->responses;
+        return $this->answers;
     }
 
-    public function addResponse(Answer $response): self
+    public function addAnswers(Answer $answers): self
     {
-        if (!$this->responses->contains($response)) {
-            $this->responses[] = $response;
-            $response->setQuestion($this);
+        if (!$this->answers->contains($answers)) {
+            $this->answers[] = $answers;
+            $answers->setQuestion($this);
         }
 
         return $this;
     }
 
-    public function removeResponse(Answer $response): self
+    public function removeAnswers(Answer $answers): self
     {
-        if ($this->responses->contains($response)) {
-            $this->responses->removeElement($response);
+        if ($this->answers->contains($answers)) {
+            $this->answers->removeElement($answers);
             // set the owning side to null (unless already changed)
-            if ($response->getQuestion() === $this) {
-                $response->setQuestion(null);
+            if ($answers->getQuestion() === $this) {
+                $answers->setQuestion(null);
             }
         }
 
         return $this;
     }
-    public function __toString() {
+    public function __toString()
+    {
         return "This is toString method of question obj";
+    }
+
+    /**
+     * @return Collection|Option[]
+     */
+    public function getOptions(): Collection
+    {
+        return $this->options;
+    }
+
+    public function addOption(Option $option): self
+    {
+        if (!$this->options->contains($option)) {
+            $this->options[] = $option;
+            $option->setQuestion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOption(Option $option): self
+    {
+        if ($this->options->contains($option)) {
+            $this->options->removeElement($option);
+            // set the owning side to null (unless already changed)
+            if ($option->getQuestion() === $this) {
+                $option->setQuestion(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -56,7 +56,7 @@ class User implements UserInterface
         return $this->id;
     }
     public function __toString() {
-        return "Useris id: {$this->id} ";
+        return "User email: {$this->email}";
     }
     public function getEmail(): ?string
     {

@@ -113,8 +113,9 @@ class Responder
 
         return $this;
     }
-    public function __toString() {
-        return "This is toString method of responder obj";
+    public function __toString()
+    {
+        return $this->name;
     }
 
 }

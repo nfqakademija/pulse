@@ -17,9 +17,9 @@ class Answer
     private $id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private $Value;
+    private $value;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Responder", inversedBy="answers")
@@ -38,14 +38,14 @@ class Answer
         return $this->id;
     }
 
-    public function getValue(): ?int
+    public function getValue(): ?string
     {
-        return $this->Value;
+        return $this->value;
     }
 
-    public function setValue(int $Value): self
+    public function setValue(string $value): self
     {
-        $this->Value = $Value;
+        $this->value = $value;
 
         return $this;
     }
@@ -73,7 +73,8 @@ class Answer
 
         return $this;
     }
-    public function __toString() {
-        return "This is toString method of answer obj";
+    public function __toString()
+    {
+        return $this->value;
     }
 }
