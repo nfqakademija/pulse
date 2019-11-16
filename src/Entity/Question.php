@@ -86,9 +86,9 @@ class Question
         $this->answers = $answers;
     }
 
-    public function setPoll(?Poll $pool)
+    public function setPoll(?Poll $poll)
     {
-        $this->poll = $pool;
+        $this->poll = $poll;
     }
 
     /**
