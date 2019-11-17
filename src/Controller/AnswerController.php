@@ -83,7 +83,7 @@ class AnswerController extends AbstractController
      */
     public function delete(Request $request, Answer $answer): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$answer->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $answer->getId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($answer);
             $entityManager->flush();

@@ -20,6 +20,10 @@ easy_admin:
         children:
             - {entity: Option, label: "List", icon: "th-list" }
             - {entity: Option, label: "Add", icon: "plus", params: {action: "new"}}
+      - label: "Answer"
+        children:
+            - {entity: Answer, label: "List", icon: "th-list" }
+            - {entity: Answer, label: "Add", icon: "plus", params: {action: "new"}}
       - {label: "Settings"}
       - {entity: User, icon: "user"}
   site_name: "Nfq Pulse"

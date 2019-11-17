@@ -23,13 +23,13 @@ class Answer
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Responder", inversedBy="answers")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $responder;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Question", inversedBy="responses")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $question;
 
