@@ -69,45 +69,108 @@ $botman->hears('Send poll', function ($bot) {
         });
     }
 });
-    //Apklausa per hookus
+//Apklausa per hookus
 $botman->hears('hook', function ($bot) {
-    $urls = ['https://hooks.slack.com/services/TPVCUHMLZ   /BQN05RBJQ/kTZNwoj06mTD6xq6UGvR7EIV',
-    "https://hooks.slack.com/services/TPVCUHMLZ/BQQJQPYGN   /wEKfm9tAB1WZzu7vPN7llMBt",
-     "https://hooks.slack.com/services/TPVCUHMLZ/BQ9JTDMK4   /lLoWPuQVVkTivH0WaOCtCYB7",
-     "https://hooks.slack.com/services/TPVCUHMLZ/BQEERC8D7   /Bi1uOQc7fgyfuYi5SHh2aXVv"];
+    $urls = ['https://hooks.slack.com/services/TPVCUHMLZ/  BQN05RBJQ/kTZNwoj06mTD6xq6UGvR7EIV'];
+//        "https://hooks.slack.com/services/TPVCUHMLZ/  BQQJQPYGN/wEKfm9tAB1WZzu7vPN7llMBt",
+//        "https://hooks.slack.com/services/TPVCUHMLZ/  BQ9JTDMK4/lLoWPuQVVkTivH0WaOCtCYB7",
+//        "https://hooks.slack.com/services/TPVCUHMLZ/  BQEERC8D7/Bi1uOQc7fgyfuYi5SHh2aXVv"];
 
-    $data =[
-        "content-type"  =>  "application/json",
-        "text"=> "Danny Torrence left a 1 star review for your property.",
-        'blocks' =>[[
-            'type' => 'mrkdwn',
-            'text' => [
-                "type"=>"mrkdwn",
-                "text"=> "you can add a buttom"
+//    $link = "http://127.0.0.1:8000/api/form/1";
+//    try {
+//        $data = json_decode(file_get_contents($link), true);
+//    } catch (\Throwable $e) {
+//        var_dump($e);
+//    }
+//    $index = 0;
+//    foreach ($data as $question) {
+//        $question = $data[$index]["question"];
+//        $options = $data[$index]["options"];
+//        $index++;
+//        $question = Question::create($question)
+//            ->callbackId($question);
+//
+//        foreach ($options as $option) {
+//            $question->addButtons([Button::create($option["value"])->value($option["value"])]);
+//        };
+//        $bot->typesAndWaits(1);
+//        $bot->ask($question, function (Answer $response) {
+//            var_dump("send poll ask dalis");
+//            if ($response->isInteractiveMessageReply()) {
+//                $selectedValue = $response->getValue(); // will be either 'yes' or 'no'
+//                $selectedText = $response->getText(); // will be either 'Of course' or 'Hell no!'
+//                var_dump($selectedText);
+//            }
+//        });
+//    }
+
+
+    $channel = '#general';
+    $bot_name = 'Webhook';
+    $icon = ':alien:';
+    $message = 'Your message';
+    $attachments = array([
+        "blocks" => [
+            [
+                "type" => "section",
+                "text" => [
+                    "type" => "mrkdwn",
+                    "text" => "Kaip siandien jauciates?"
+                ],
+                "accessory" => [
+                    "type" => "static_select",
+                    "placeholder" => [
+                        "type" => "plain_text",
+                        "text" => "Select an item",
+                        "emoji" => true
+                    ],
+                    "options" => [
+                        [
+                            "text" => [
+                                "type" => "plain_text",
+                                "text" => "Puikiai",
+                                "emoji" => true
+                            ],
+                            "value" => "value-2"
+                        ],
+                        [
+                            "text" => [
+                                "type" => "plain_text",
+                                "text" => "Gerai",
+                                "emoji" => true
+                            ],
+                            "value" => "value-2"
+                        ]
+                    ]
+                ]
             ]
-        ]],
-   ];
+        ]
 
-
+    ]);
+    $data = array(
+        'channel' => $channel,
+        'username' => $bot_name,
+        'text' => $attachments,
+        'icon_emoji' => $icon,
+        'attachments' => $attachments
+    );
     foreach ($urls as $url) {
-        $hookObject = json_encode(["text"=> "Testing hook",]
-            , JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        $ch = curl_init();
-
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $hookObject,
-            CURLOPT_HTTPHEADER => [
-                "Length" => strlen($hookObject),
-                "Content-Type" => "application/json"
-            ]
-        ]);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-        var_dump($response);
+        $data_string = json_encode($data);
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string))
+        );
+        //Execute CURL
+        $result = curl_exec($ch);
     }
+
+    return $result;
+
+
 });
 
 
