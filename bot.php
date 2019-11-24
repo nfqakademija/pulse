@@ -12,31 +12,34 @@ use BotMan\Drivers\Slack\SlackRTMDriver;
 // Load driver
 DriverManager::loadDriver(SlackRTMDriver::class);
 
+$token = "";
+$users = ["UQ3AJBYSH"];
+$question = "How are you";
+$answers = ["Good", "Average", "Low"];
+
 $loop = Factory::create();
 $botman = BotManFactory::createForRTM([
     'slack' => [
-        'token' => 'xoxb-811436599713-809425196483-io7eN8NKqC7aXTa9DGxjv5SE',
+        'token' => $token,
     ],
 ], $loop);
 
-$botman->hears('test', function($bot) {
-    $question = Question::create('How are you')
-        ->fallback('Done')
-        ->callbackId('q1')
-        ->addButtons([
-            Button::create('Good')->value('yes'),
-            Button::create('IDK')->value('idk'),
-            Button::create('Not good')->value('no'),
-        ]);
 
-    $answer = '';
+$answersFormatted = [];
+foreach ($answers as $answer)
+{
+    $answersFormatted[] = Button::create($answer)->value($answer);
+}
 
-    $bot->ask($question, function (Answer $response, $bot) {
-        $bot->say('Hi ' . $response->getText());
-    });
-});
+$question = Question::create($question)
+    ->fallback('Answer')
+    ->callbackId('Q1')
+    ->addButtons($answersFormatted);
 
-// $botman->say('HELLO MA FRIEND', 'UQ3AJBYSH');
+foreach($users as $user)
+{
+    $botman->say($question, $user);
+}
 
 $loop->run();
 ?>
