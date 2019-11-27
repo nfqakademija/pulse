@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+    <select>
+        {% if polls %}
+            {% for poll in polls %}
+                <option value="{{ poll.id }}">{{ poll.name }}</option>
+            {% endfor %}
+        {% else %}
+            <option value="-1">No polls to display!</option>
+        {% endif %}
+    </select>
+{% endblock %}

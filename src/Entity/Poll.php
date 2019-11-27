@@ -62,6 +62,4 @@ class Poll
     {
         return $this->name;
     }
-
-
 }

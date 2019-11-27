@@ -117,5 +117,4 @@ class Responder
     {
         return $this->name;
     }
-
 }

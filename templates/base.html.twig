@@ -4,40 +4,32 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-        <link rel="stylesheet"
-              href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-              crossorigin="anonymous">
-        <script
-                src="https://code.jquery.com/jquery-3.3.1.min.js"
-                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-                crossorigin="anonymous"></script>
-        <script
-                src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-                integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-                crossorigin="anonymous"></script>
-        <script
-                src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-                integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-                crossorigin="anonymous"></script>
         <title>{% block title %}Welcome!{% endblock %}</title>
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
+        {% block head %}{% endblock %}
     </head>
-    <body>
+    <body {% block body_attributes %}{% endblock %}>
         <!-- Navigation bar -->
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
-            <div class="container-fluid">
-                <!-- Title -->
-                <a class="navbar-brand" href="/">NFQ Pulse</a>
-                <!-- Links -->
-                <div class="navbar-nav">
-                    <!-- Home page link -->
-                    <a class="nav-item nav-link" href="/">Home</a>
+            <!-- Title -->
+            <a class="navbar-brand" href="/">NFQ Pulse</a>
+            <!-- Links -->
+            <div class="navbar-nav">
+                <!-- Home page link -->
+                <a class="nav-item nav-link" href="/">Home</a>
+                <!-- Admin links -->
+                {% if is_granted("ROLE_ADMIN") %}
                     <!-- Admin panel link -->
                     <a class="nav-item nav-link" href="/admin">Admin panel</a>
-                </div>
+                    <!-- Admin polls link -->
+                    <a class="nav-item nav-link" href="/polls/{{ app.user.id }}">Polls</a>
+                {% endif %}
+                <!-- Logout link -->
+                {% if app.user %}
+                    <a class="nav-item nav-link" href="/logout">Logout ({{ app.user.email }})</a>
+                {% endif %}
             </div>
         </nav>
         <!-- Page container -->
