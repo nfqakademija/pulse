@@ -30,7 +30,10 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
     private $passwordEncoder;
     private $authorizationChecker;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator,
+                                CsrfTokenManagerInterface $csrfTokenManager,
+                                UserPasswordEncoderInterface $passwordEncoder,
+                                AuthorizationCheckerInterface $authorizationChecker)
     {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
@@ -84,12 +87,9 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
-        if ($this->authorizationChecker->isGranted('ROLE_ADMIN'))
-        {
+        if ($this->authorizationChecker->isGranted('ROLE_ADMIN')) {
             return new RedirectResponse($this->urlGenerator->generate('easyadmin'));
-        }
-        else
-        {
+        } else {
             return new RedirectResponse($this->urlGenerator->generate('home'));
         }
     }
