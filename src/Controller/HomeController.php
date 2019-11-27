@@ -40,4 +40,28 @@ class HomeController extends AbstractController
             'polls' => $polls,
         ]);
     }
+
+    /**
+     * @Route("/poll/{id}", name="showpoll", methods={"GET"})
+     */
+    public function showPoll($id)
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $queryBuilder = $entityManager->createQueryBuilder();
+
+        $query = $queryBuilder->select(array('q', 'o'))
+            ->from('App:Question', 'q')
+            ->where($queryBuilder->expr()->eq('q.poll', $id))
+            ->leftJoin('q.options', 'o')
+            ->orderBy('q.question_number', 'ASC')
+            ->getQuery();
+
+        $pollQuestions = $query->getResult();
+
+        return $this->render('home/poll.html.twig', [
+            'title' => 'Poll',
+            'pollQuestions' => $pollQuestions,
+        ]);
+    }
 }

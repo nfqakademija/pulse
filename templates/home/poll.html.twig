@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+    {% if pollQuestions %}
+        {% for pollQuestion in pollQuestions %}
+            <div class="card">
+                <div class="card-header">
+                    {{ pollQuestion.getQuestionNumber() ~ '. ' ~ pollQuestion.question }}
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% if pollQuestion.options|length > 0 %}
+                        {% for option in pollQuestion.options %}
+                            <li class="list-group-item">{{ option.value }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="list-group-item">No options to display!</li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No questions to display!</p>
+    {% endif %}
+{% endblock %}

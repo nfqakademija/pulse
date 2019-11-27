@@ -3,13 +3,25 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    <select>
-        {% if polls %}
-            {% for poll in polls %}
-                <option value="{{ poll.id }}">{{ poll.name }}</option>
-            {% endfor %}
-        {% else %}
-            <option value="-1">No polls to display!</option>
-        {% endif %}
-    </select>
+    <div class="dropdown show">
+        <a class="btn btn-secondary dropdown-toggle"
+           href="#"
+           role="button"
+           id="dropdownMenuLink"
+           data-toggle="dropdown"
+           aria-haspopup="true"
+           aria-expanded="false"
+        >
+            Polls
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            {% if polls %}
+                {% for poll in polls %}
+                    <a class="dropdown-item" href="/poll/{{ poll.id }}">{{ poll.name }}</a>
+                {% endfor %}
+            {% else %}
+                <a class="dropdown-item" href="#">No polls to display!</a>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

@@ -30,11 +30,13 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
     private $passwordEncoder;
     private $authorizationChecker;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator,
-                                CsrfTokenManagerInterface $csrfTokenManager,
-                                UserPasswordEncoderInterface $passwordEncoder,
-                                AuthorizationCheckerInterface $authorizationChecker)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UrlGeneratorInterface $urlGenerator,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder,
+        AuthorizationCheckerInterface $authorizationChecker
+    ) {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
