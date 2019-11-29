@@ -25,7 +25,7 @@ easy_admin:
             - {entity: Answer, label: "List", icon: "th-list" }
             - {entity: Answer, label: "Add", icon: "plus", params: {action: "new"}}
       - {label: "Settings"}
-      - {entity: User, icon: "user"}
+      - {entity: User, icon: "user", permission: 'ROLE_SUPER_ADMIN'}
   site_name: "Nfq Pulse"
   user:
     name_property_path: "email"
