@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AnswerRepository")
@@ -18,6 +20,8 @@ class Answer
 
     /**
      * @ORM\Column(type="string")
+     *
+     * @Assert\NotBlank()
      */
     private $value;
 
@@ -32,6 +36,11 @@ class Answer
      * @ORM\JoinColumn(nullable=true)
      */
     private $question;
+
+    public function __construct()
+    {
+
+    }
 
     public function getId(): ?int
     {
@@ -73,6 +82,7 @@ class Answer
 
         return $this;
     }
+
     public function __toString()
     {
         return $this->value;
