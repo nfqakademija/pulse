@@ -16,15 +16,14 @@ class AnswerType extends AbstractType
             ->add('value')
             ->add('responder')
             ->add('question')
-            ->add('save',SubmitType::class)
-        ;
+            ->add('save', SubmitType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => Answer::class,
-            'csrf_protection'=>false
+            'csrf_protection' => false
         ]);
     }
 }
