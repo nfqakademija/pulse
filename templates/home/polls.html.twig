@@ -15,12 +15,11 @@
             Polls
         </a>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+            <a class="dropdown-item" href="/poll/new/{{ app.user.id }}">Create Poll</a>
             {% if polls %}
                 {% for poll in polls %}
                     <a class="dropdown-item" href="/poll/{{ poll.id }}">{{ poll.name }}</a>
                 {% endfor %}
-            {% else %}
-                <a class="dropdown-item" href="#">No polls to display!</a>
             {% endif %}
         </div>
     </div>

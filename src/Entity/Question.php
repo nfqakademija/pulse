@@ -29,12 +29,6 @@ class Question
     private $question;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Poll")
-     * @ORM\JoinColumn(name="poll_id", referencedColumnName="id")
-     */
-    private $poll;
-
-    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="question")
      */
     private $answers;
@@ -44,10 +38,10 @@ class Question
      */
     private $options;
 
-
-
-
-
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Poll", inversedBy="questions")
+     */
+    private $poll;
 
     public function __construct()
     {
@@ -70,11 +64,6 @@ class Question
         return $this->question;
     }
 
-    public function getPoll(): ?Poll
-    {
-        return $this->poll;
-    }
-
     public function setQuestionNumber(?int $question_number)
     {
         $this->question_number = $question_number;
@@ -88,11 +77,6 @@ class Question
     public function setAnswers(?array $answers)
     {
         $this->answers = $answers;
-    }
-
-    public function setPoll(?Poll $poll)
-    {
-        $this->poll = $poll;
     }
 
     /**
@@ -157,6 +141,18 @@ class Question
                 $option->setQuestion(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getPoll(): ?Poll
+    {
+        return $this->poll;
+    }
+
+    public function setPoll(?Poll $poll): self
+    {
+        $this->poll = $poll;
 
         return $this;
     }

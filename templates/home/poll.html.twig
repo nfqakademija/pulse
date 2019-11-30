@@ -3,24 +3,106 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    {% if pollQuestions %}
-        {% for pollQuestion in pollQuestions %}
+    {{ form_start(form) }}
+        <div class="card">
+            <div class="card-header">
+                <b>{{ form_row(form.name) }}</b>
+            </div>
+        </div>
+        {% if form.questions|length > 0 %}
+            <div id="questions">
+                {% for question in form.questions|sort((a, b) => a.question_number <=> b.question_number) %}
+                    <div class="card">
+                        <div class="card-header">
+                            <b>{{ form_row(question.question) }}</b>
+                            <a class="btn btn-danger delete-question"
+                               href="#"
+                               data-id="{{ question.vars.value.id }}"
+                               role="button"
+                            >
+                                Delete question
+                            </a>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for option in question.options %}
+                                <li class="list-group-item">
+                                    {{ form_row(option.value) }}
+                                    <a class="btn btn-danger delete-option"
+                                       href="#"
+                                       data-id="{{ option.vars.value.id }}"
+                                       role="button"
+                                    >
+                                        Delete option
+                                    </a>
+                                </li>
+                            {% endfor %}
+                            <li class="list-group-item">
+                                <a class="btn btn-primary"
+                                   href="/question/{{ question.vars.value.id }}/new/option"
+                                   role="button"
+                                >
+                                    Add option
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <a class="btn btn-primary"
+                               href="/poll/{{ form.vars.value.id }}/new/question/{{ question.vars.value.getQuestionNumber() }}"
+                               role="button"
+                            >
+                                Add question
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if form.questions|length == 0 %}
             <div class="card">
                 <div class="card-header">
-                    {{ pollQuestion.getQuestionNumber() ~ '. ' ~ pollQuestion.question }}
+                    <a class="btn btn-primary"
+                       href="/poll/{{ form.vars.value.id }}/new/question/-1"
+                       role="button"
+                    >
+                        Add question
+                    </a>
                 </div>
-                <ul class="list-group list-group-flush">
-                    {% if pollQuestion.options|length > 0 %}
-                        {% for option in pollQuestion.options %}
-                            <li class="list-group-item">{{ option.value }}</li>
-                        {% endfor %}
-                    {% else %}
-                        <li class="list-group-item">No options to display!</li>
-                    {% endif %}
-                </ul>
             </div>
-        {% endfor %}
-    {% else %}
-        <p>No questions to display!</p>
-    {% endif %}
+        {% endif %}
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        const questions = document.getElementById('questions');
+        if (questions)
+        {
+            questions.addEventListener('click', (e) => {
+                if (e.target.className === 'btn btn-danger delete-question')
+                {
+                    if (confirm('Are you sure?'))
+                    {
+                        const id = e.target.getAttribute('data-id');
+                        fetch(`/question/delete/${id}`, {
+                            method: 'DELETE'
+                        }).then(res => window.location.reload());
+                    }
+                }
+            });
+            questions.addEventListener('click', (e) => {
+                if (e.target.className === 'btn btn-danger delete-option')
+                {
+                    if (confirm('Are you sure?'))
+                    {
+                        const id = e.target.getAttribute('data-id');
+                        fetch(`/option/delete/${id}`, {
+                            method: 'DELETE'
+                        }).then(res => window.location.reload());
+                    }
+                }
+            });
+        }
+    </script>
 {% endblock %}
