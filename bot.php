@@ -6,7 +6,6 @@ use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 use BotMan\BotMan\Messages\Outgoing\Question;
-use BotMan\Drivers\Slack\Extensions\Menu;
 use BotMan\Drivers\Slack\SlackRTMDriver;
 use React\EventLoop\Factory;
 use Symfony\Component\Dotenv\Dotenv;

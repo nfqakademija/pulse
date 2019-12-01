@@ -104,6 +104,7 @@ class Responder
     {
         return $this->slack_id;
     }
+
     public function getSlackId(): ?string
     {
         return $this->slack_id;
