@@ -54,16 +54,19 @@ class ApiController extends AbstractFOSRestController
      */
     public function postAnswer(Request $request)
     {
-        $dotenv = new Dotenv();
-        $dotenv->load(__DIR__ . '/.env');
+        //$dotenv = new Dotenv();
+       // $dotenv->load(__DIR__ . '/.env');
 
+        $SLACK_SIGNING_SECRET =  getenv("SLACK_SIGNING_SECRET");
+        var_dump($SLACK_SIGNING_SECRET);
         $answer = new Answer();
         $form = $this->createForm(AnswerType::class, $answer);
         $raw_body = file_get_contents('php://input');
         $body = urldecode($_POST['payload']);
         $message = json_decode($body, true);
 
-        $SLACK_SIGNING_SECRET = $_ENV["SLACK_SIGNING_SECRET"];
+
+
         if (empty($_SERVER['HTTP_X_SLACK_SIGNATURE']) || empty($_SERVER['HTTP_X_SLACK_REQUEST_TIMESTAMP'])) {
             header('HTTP/1.1 400 Bad Request', true, 400);
             exit;

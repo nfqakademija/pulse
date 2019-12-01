@@ -41,7 +41,7 @@ foreach ($user_list["members"] as $user_info) {
 
 //Apklausos funckija
 $botman->hears('Send poll', function ($bot) {
-    $link = "http://127.0.0.1:8000/api/poll/1";
+    $link = "https://pulse.projektai.nfqakademija.lt/api/poll/1";
     try {
         $data = json_decode(file_get_contents($link), true);
     } catch (\Throwable $e) {
