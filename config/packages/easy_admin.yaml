@@ -36,32 +36,28 @@ easy_admin:
     # List the entity class name you want to manage
     Responder:
       class: App\Entity\Responder
-      label: "Responders"
+      label: "Responder"
       form:
         fields:
-#          - {type: "group", icon: "pencil", label: "Basic info", css_class: 'col-lg-7'}
+          - slackId
           - name
-          - {property: 'name', type: 'text'}
           - email
-          - {property: 'email', type: 'email'}
-          - user
+          - teamLead
       list:
         fields:
-          - id
+          - slackId
           - name
           - email
-          - user
-        actions: ['show', "edit", "delete"]
+          - teamLead
+        actions: ['show', "edit", "delete", { name: 'asd', template: 'question/custom.html.twig' }]
         batch_actions: ["delete"]
-        filters: ["user"]
+        filters: ["teamLead"]
       show:
         fields:
-          - id
+          - slack_id
           - name
           - email
-          - user
-
-
+          - teamLead
 
     Question:
       class: App\Entity\Question
@@ -91,12 +87,6 @@ easy_admin:
           - question_number
           - poll
           - options
-
- 
-
-
-
-
 
     Poll:
       class: App\Entity\Poll

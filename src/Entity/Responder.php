@@ -12,13 +12,6 @@ use Doctrine\ORM\Mapping as ORM;
 class Responder
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
-    private $id;
-
-    /**
      * @ORM\Column(type="text")
      */
     private $name;
@@ -28,28 +21,28 @@ class Responder
      */
     private $email;
 
+
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="responders")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\Id()
+     * @ORM\Column(type="string", length=255)
      */
-    private $user;
+    private $slack_id;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="responder", orphanRemoval=true)
      */
     private $answers;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="responder")
+     */
+    private $teamLead;
+
     public function __construct()
     {
         $this->answers = new ArrayCollection();
     }
 
-
-
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
 
     public function getName(): ?string
     {
@@ -69,18 +62,6 @@ class Responder
     public function setEmail(?string $email)
     {
         $this->email = $email;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-
-        return $this;
     }
 
     /**
@@ -113,8 +94,37 @@ class Responder
 
         return $this;
     }
+
     public function __toString()
     {
         return $this->name;
+    }
+
+    public function getslack_id(): ?string
+    {
+        return $this->slack_id;
+    }
+    public function getSlackId(): ?string
+    {
+        return $this->slack_id;
+    }
+
+    public function setSlackId(string $slack_id): self
+    {
+        $this->slack_id = $slack_id;
+
+        return $this;
+    }
+
+    public function getTeamLead(): ?User
+    {
+        return $this->teamLead;
+    }
+
+    public function setTeamLead(?User $teamLead): self
+    {
+        $this->teamLead = $teamLead;
+
+        return $this;
     }
 }
