@@ -39,6 +39,29 @@ foreach ($user_list["members"] as $user_info) {
     // Andrius UPVCV06U9
 }
 
+function validUser($user)
+{ return true; }
+
+function sendQuestion($botman, $user_data)
+{
+    $question = "Test";
+    $options = ['Option 1', 'Option 2'];
+
+    $question = Question::create($question)
+        ->callbackId($question);
+
+    foreach ($options as $option) {
+        $question->addButtons([Button::create($option)->value($option)]);
+    };
+
+    foreach ($user_data as $user)
+    {
+        $botman->say($question, $user['id']);
+    }
+}
+
+//sendQuestion($botman, $user_data);
+
 //Apklausos funckija
 $botman->hears('Send poll', function ($bot) {
     $link = "https://pulse.projektai.nfqakademija.lt/api/poll/1";
