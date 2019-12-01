@@ -25,16 +25,17 @@ class Answer
     private $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Responder", inversedBy="answers")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $responder;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Question", inversedBy="responses")
      * @ORM\JoinColumn(nullable=true)
      */
     private $question;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Responder", inversedBy="answers")
+     * @ORM\JoinColumn(referencedColumnName="slack_id", nullable=false)
+     */
+    private $responder;
+
 
     public function __construct()
     {
@@ -57,18 +58,6 @@ class Answer
         return $this;
     }
 
-    public function getResponder(): ?Responder
-    {
-        return $this->responder;
-    }
-
-    public function setResponder(?Responder $responder): self
-    {
-        $this->responder = $responder;
-
-        return $this;
-    }
-
     public function getQuestion(): ?Question
     {
         return $this->question;
@@ -85,4 +74,17 @@ class Answer
     {
         return $this->value;
     }
+
+    public function getResponder(): ?Responder
+    {
+        return $this->responder;
+    }
+
+    public function setResponder(?Responder $responder): self
+    {
+        $this->responder = $responder;
+
+        return $this;
+    }
+
 }

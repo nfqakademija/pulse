@@ -6,7 +6,6 @@ use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 use BotMan\BotMan\Messages\Outgoing\Question;
-use BotMan\Drivers\Slack\Extensions\Menu;
 use BotMan\Drivers\Slack\SlackRTMDriver;
 use React\EventLoop\Factory;
 use Symfony\Component\Dotenv\Dotenv;
@@ -61,7 +60,6 @@ $botman->hears('Send poll', function ($bot) {
         };
         $bot->typesAndWaits(1);
         $bot->ask($question, function (Answer $response) {
-            var_dump("send poll ask dalis");
             if ($response->isInteractiveMessageReply()) {
                 $selectedValue = $response->getValue(); // will be either 'yes' or 'no'
                 $selectedText = $response->getText(); // will be either 'Of course' or 'Hell no!'
