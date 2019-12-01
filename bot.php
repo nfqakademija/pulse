@@ -40,7 +40,9 @@ foreach ($user_list["members"] as $user_info) {
 }
 
 function validUser($user)
-{ return true; }
+{
+    return true;
+}
 
 function sendQuestion($botman, $user_data)
 {
@@ -54,8 +56,7 @@ function sendQuestion($botman, $user_data)
         $question->addButtons([Button::create($option)->value($option)]);
     };
 
-    foreach ($user_data as $user)
-    {
+    foreach ($user_data as $user) {
         $botman->say($question, $user['id']);
     }
 }
