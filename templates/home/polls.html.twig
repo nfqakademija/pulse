@@ -3,6 +3,17 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
+    {% if is_granted("ROLE_SUPER_ADMIN") %}
+        <div class="card">
+            <div class="card-header">
+                <b>
+                    {{ form_start(form) }}
+                    {{ form_widget(form) }}
+                    {{ form_end(form) }}
+                </b>
+            </div>
+        </div>
+    {% endif %}
     <div class="dropdown show">
         <a class="btn btn-secondary dropdown-toggle"
            href="#"

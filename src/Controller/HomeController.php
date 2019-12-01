@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 use App\Entity\User;
 use App\Entity\Poll;
@@ -27,10 +30,82 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @Route("/polls/{adminId}", name="polls", methods={"GET"})
+     * @Route("/polls/{adminId}", name="polls", methods={"GET", "POST"})
      */
-    public function polls($adminId)
+    public function polls(Request $request, KernelInterface $kernelInterface, $adminId)
     {
+        $projectDir = $kernelInterface->getProjectDir();
+
+        $envFile = $projectDir . '/.env';
+
+        $botToken = array('');
+
+        $reading = fopen($envFile, 'r');
+        while (!feof($reading)) {
+            $line = fgets($reading);
+            if (stristr($line, 'BOT_TOKEN')) {
+                $lineChars = str_split($line);
+                for ($i = 0; $i < count($lineChars); $i++) {
+                    if ($lineChars[$i] === '"') {
+                        while ($i + 1 < count($lineChars)) {
+                            $i++;
+                            if ($lineChars[$i] !== '"') {
+                                $botToken[0] .= $lineChars[$i];
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        fclose($reading);
+
+        $form = $this->createFormBuilder($botToken)
+            ->add('token', TextType::class, [
+                'label' => 'BOT_TOKEN',
+                'attr' => [
+                    'class' => 'form-control',
+                    'value' => $botToken[0],
+                ],
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Save',
+                'attr' => [
+                    'class' => 'btn btn-primary',
+                ],
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newBotToken = $form["token"]->getData();
+
+            $envTmpFile = $projectDir . '/env.tmp';
+            $reading = fopen($envFile, 'r');
+            $writing = fopen($envTmpFile, 'w');
+            $replaced = false;
+            while (!feof($reading)) {
+                $line = fgets($reading);
+                if (stristr($line, 'BOT_TOKEN')) {
+                    $line = 'BOT_TOKEN="' . $newBotToken . '"' . "\n";
+                    $replaced = true;
+                }
+                fputs($writing, $line);
+            }
+            fclose($reading);
+            fclose($writing);
+            if ($replaced) {
+                rename($envTmpFile, $envFile);
+            } else {
+                unlink($envTmpFile);
+            }
+
+            return $this->redirectToRoute('polls', ['adminId' => $adminId]);
+        }
+
         $entityManager = $this->getDoctrine()->getManager();
 
         $queryBuilder = $entityManager->createQueryBuilder();
@@ -44,6 +119,7 @@ class HomeController extends AbstractController
 
         return $this->render('home/polls.html.twig', [
             'title' => 'Polls',
+            'form' => $form->createView(),
             'polls' => $polls,
         ]);
     }
