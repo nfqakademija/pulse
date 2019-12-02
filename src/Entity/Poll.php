@@ -34,9 +34,15 @@ class Poll
      */
     private $questions;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Survey", mappedBy="poll")
+     */
+    private $surveys;
+
     public function __construct()
     {
         $this->questions = new ArrayCollection();
+        $this->surveys = new ArrayCollection();
     }
 
 
@@ -100,6 +106,37 @@ class Poll
             // set the owning side to null (unless already changed)
             if ($question->getPoll() === $this) {
                 $question->setPoll(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Survey[]
+     */
+    public function getSurveys(): Collection
+    {
+        return $this->surveys;
+    }
+
+    public function addSurvey(Survey $survey): self
+    {
+        if (!$this->surveys->contains($survey)) {
+            $this->surveys[] = $survey;
+            $survey->setPoll($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSurvey(Survey $survey): self
+    {
+        if ($this->surveys->contains($survey)) {
+            $this->surveys->removeElement($survey);
+            // set the owning side to null (unless already changed)
+            if ($survey->getPoll() === $this) {
+                $survey->setPoll(null);
             }
         }
 

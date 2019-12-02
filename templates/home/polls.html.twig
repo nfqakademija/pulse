@@ -34,4 +34,25 @@
             {% endif %}
         </div>
     </div>
+    <div class="dropdown show">
+        <a class="btn btn-secondary dropdown-toggle"
+           href="#"
+           role="button"
+           id="dropdownSurveyMenuLink"
+           data-toggle="dropdown"
+           aria-haspopup="true"
+           aria-expanded="false"
+        >
+            Surveys
+        </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownSurveyMenuLink">
+            {% if surveys %}
+                {% for survey in surveys %}
+                    <a class="dropdown-item" href="/graph/{{ survey.id }}">{{ survey.name }}</a>
+                {% endfor %}
+            {% else %}
+                <a class="dropdown-item" href="#">No surveys to display!</a>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}

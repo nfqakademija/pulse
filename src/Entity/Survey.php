@@ -5,12 +5,11 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Form\AbstractType;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\OptionRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\SurveyRepository")
  */
-class Option extends AbstractType
+class Survey
 {
     /**
      * @ORM\Id()
@@ -20,59 +19,62 @@ class Option extends AbstractType
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="datetime")
      */
-    private $value;
+    private $datetime;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Question", inversedBy="options")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\ManyToOne(targetEntity="App\Entity\Poll", inversedBy="surveys")
      */
-    private $question;
+    private $poll;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="answerOption")
+     * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="survey")
      */
     private $answers;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
 
     public function __construct()
     {
         $this->answers = new ArrayCollection();
     }
 
-
+    public function __toString(): string
+    {
+        return $this->name;
+    }
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getValue(): ?string
+    public function getDatetime(): ?\DateTimeInterface
     {
-        return $this->value;
+        return $this->datetime;
     }
 
-    public function setValue(string $value): self
+    public function setDatetime(\DateTimeInterface $datetime): self
     {
-        $this->value = $value;
+        $this->datetime = $datetime;
 
         return $this;
     }
 
-    public function getQuestion(): ?Question
+    public function getPoll(): ?Poll
     {
-        return $this->question;
+        return $this->poll;
     }
 
-    public function setQuestion(?Question $question): self
+    public function setPoll(?Poll $poll): self
     {
-        $this->question = $question;
+        $this->poll = $poll;
 
         return $this;
-    }
-    public function __toString():string
-    {
-        return $this->value;
     }
 
     /**
@@ -87,7 +89,7 @@ class Option extends AbstractType
     {
         if (!$this->answers->contains($answer)) {
             $this->answers[] = $answer;
-            $answer->setAnswerOption($this);
+            $answer->setSurvey($this);
         }
 
         return $this;
@@ -98,10 +100,22 @@ class Option extends AbstractType
         if ($this->answers->contains($answer)) {
             $this->answers->removeElement($answer);
             // set the owning side to null (unless already changed)
-            if ($answer->getAnswerOption() === $this) {
-                $answer->setAnswerOption(null);
+            if ($answer->getSurvey() === $this) {
+                $answer->setSurvey(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
 
         return $this;
     }

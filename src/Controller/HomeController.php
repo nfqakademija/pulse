@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 use App\Entity\User;
+use App\Entity\Survey;
 use App\Entity\Poll;
 use App\Entity\Question;
 use App\Entity\Option;
@@ -112,15 +113,27 @@ class HomeController extends AbstractController
 
         $query = $queryBuilder->select(array('p'))
             ->from('App:Poll', 'p')
-            ->where($queryBuilder->expr()->eq('p.user', $adminId))
+            ->where($queryBuilder->expr()->eq('p.user', ':adminId'))
+            ->setParameter('adminId', $adminId)
             ->getQuery();
 
         $polls = $query->getResult();
+
+        $query = $queryBuilder->select(array('s'))
+            ->from('App:Survey', 's')
+            ->innerJoin('s.poll', 'poll')
+            ->where($queryBuilder->expr()->eq('poll.user', ':adminId'))
+            ->setParameter('adminId', $adminId)
+            ->orderBy('s.datetime', 'DESC')
+            ->getQuery();
+
+        $surveys = $query->getResult();
 
         return $this->render('home/polls.html.twig', [
             'title' => 'Polls',
             'form' => $form->createView(),
             'polls' => $polls,
+            'surveys' => $surveys,
         ]);
     }
 
@@ -178,7 +191,8 @@ class HomeController extends AbstractController
 
         $query = $queryBuilder->select(array('q'))
             ->from('App:Question', 'q')
-            ->where($queryBuilder->expr()->eq('q.poll', $pollId))
+            ->where($queryBuilder->expr()->eq('q.poll', ':pollId'))
+            ->setParameter('pollId', $pollId)
             ->orderBy('q.question_number', 'ASC')
             ->getQuery();
 
@@ -225,16 +239,10 @@ class HomeController extends AbstractController
 
         $queryBuilder = $entityManager->createQueryBuilder();
 
-        // Deletes question options
-        $query = $queryBuilder->delete('App:Option', 'o')
-            ->where($queryBuilder->expr()->eq('o.question', $questionId))
-            ->getQuery();
-
-        $query->execute();
-
         $query = $queryBuilder->select(array('q'))
             ->from('App:Question', 'q')
-            ->where($queryBuilder->expr()->eq('q.poll', $pollId))
+            ->where($queryBuilder->expr()->eq('q.poll', ':pollId'))
+            ->setParameter('pollId', $pollId)
             ->orderBy('q.question_number', 'ASC')
             ->getQuery();
 
@@ -251,6 +259,16 @@ class HomeController extends AbstractController
                 }
             }
         }
+
+        $queryBuilder = $entityManager->createQueryBuilder();
+
+        // Deletes question options
+        $query = $queryBuilder->delete('App:Option', 'o')
+            ->where($queryBuilder->expr()->eq('o.question', ':questionId'))
+            ->setParameter('questionId', $questionId)
+            ->getQuery();
+
+        $query->execute();
 
         $entityManager->remove($question);
         $entityManager->flush();
@@ -292,5 +310,69 @@ class HomeController extends AbstractController
 
         $response = new Response();
         $response->send();
+    }
+
+    /**
+     * @Route("/graph/{surveyId}", name="graph", methods={"GET"})
+     */
+    public function graph($surveyId)
+    {
+        $survey = $this->getDoctrine()->getRepository(Survey::class)->find($surveyId);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $queryBuilder = $entityManager->createQueryBuilder();
+
+        $query = $queryBuilder
+            ->select(
+                array(
+                    'question.question_number, '
+                    .'question.question, '
+                    .'option.id AS optionId, '
+                    .'option.value, '
+                    .'COUNT(option.id) AS count'
+                )
+            )
+            ->from('App:Answer', 'a')
+            ->where($queryBuilder->expr()->eq('a.survey', ':surveyId'))
+            ->setParameter('surveyId', $surveyId)
+            ->innerJoin('a.answerOption', 'option')
+            ->innerJoin('option.question', 'question')
+            ->groupBy('option.id')
+            ->addOrderBy('question.question_number', 'ASC')
+            ->addOrderBy('option.id', 'ASC')
+            ->getQuery();
+
+        $answers = $query->getResult();
+
+        $assocAnswerArray = array();
+
+        foreach ($answers as $answer) {
+            $questionNumber = $answer['question_number'];
+
+            $question = $answer['question'];
+
+            $optionId = $answer['optionId'];
+
+            $optionValue = $answer['value'];
+
+            $optionCount = $answer['count'];
+
+            if (!array_key_exists($questionNumber, $assocAnswerArray)) {
+                $assocAnswerArray[$questionNumber] = array();
+                $assocAnswerArray[$questionNumber]['question'] = $question;
+                $assocAnswerArray[$questionNumber]['options'] = array();
+            }
+
+            $assocAnswerArray[$questionNumber]['options'][$optionId] = array();
+            $assocAnswerArray[$questionNumber]['options'][$optionId]['value'] = $optionValue;
+            $assocAnswerArray[$questionNumber]['options'][$optionId]['count'] = $optionCount;
+        }
+
+        return $this->render('home/graph.html.twig', [
+            'title' => 'Graph',
+            'survey' => $survey,
+            'answers' => $assocAnswerArray,
+        ]);
     }
 }

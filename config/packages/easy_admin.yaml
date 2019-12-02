@@ -11,6 +11,10 @@ easy_admin:
         children:
           - {entity: Responder, label: "List", icon: "th-list" }
           - {entity: Responder, label: "Add", icon: "plus", params: {action: "new"}}
+      - label: "Survey"
+        children:
+          - {entity: Survey, label: "List", icon: "th-list" }
+          - {entity: Survey, label: "Add", icon: "plus", params: {action: "new"}}
       - label: "Poll"
         children:
           - {entity: Poll, label: "List", icon: "th-list" }
@@ -88,6 +92,8 @@ easy_admin:
           - poll
           - options
 
+    Survey:
+      class: App\Entity\Survey
     Poll:
       class: App\Entity\Poll
     User:

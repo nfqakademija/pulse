@@ -36,6 +36,16 @@ class Answer
      */
     private $responder;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Survey", inversedBy="answers")
+     */
+    private $survey;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Option", inversedBy="answers")
+     */
+    private $answerOption;
+
 
     public function __construct()
     {
@@ -83,6 +93,30 @@ class Answer
     public function setResponder(?Responder $responder): self
     {
         $this->responder = $responder;
+
+        return $this;
+    }
+
+    public function getSurvey(): ?Survey
+    {
+        return $this->survey;
+    }
+
+    public function setSurvey(?Survey $survey): self
+    {
+        $this->survey = $survey;
+
+        return $this;
+    }
+
+    public function getAnswerOption(): ?Option
+    {
+        return $this->answerOption;
+    }
+
+    public function setAnswerOption(?Option $answerOption): self
+    {
+        $this->answerOption = $answerOption;
 
         return $this;
     }
