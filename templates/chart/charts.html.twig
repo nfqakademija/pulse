@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Answer index{% endblock %}
+
+{% block body %}
+    <h1>Choose question</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Question</th>
+            <th>Charts</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for question in questions %}
+            <tr>
+                <td>{{ question.id }}</td>
+                <td>{{ question.question }}</td>
+                <td>
+                    <a href="{{ path('show_chart', {'id': question.id}) }}">Show chart</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

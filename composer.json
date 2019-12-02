@@ -8,6 +8,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "botman/driver-slack": "^2.2",
+        "cmen/google-charts-bundle": "^3.2",
         "easycorp/easyadmin-bundle": "^2.3",
         "friendsofsymfony/rest-bundle": "^2.6",
         "jms/serializer-bundle": "^3.4",

@@ -4,7 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Answer;
 use App\Form\AnswerType;
+use App\Entity\Question;
+use App\Form\QuestionType;
 use App\Repository\AnswerRepository;
+use App\Repository\QuestionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,4 +94,6 @@ class AnswerController extends AbstractController
 
         return $this->redirectToRoute('answer_index');
     }
+
+
 }

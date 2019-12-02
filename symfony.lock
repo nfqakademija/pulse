@@ -5,6 +5,9 @@
     "botman/driver-slack": {
         "version": "2.2.0"
     },
+    "cmen/google-charts-bundle": {
+        "version": "3.2.0"
+    },
     "container-interop/container-interop": {
         "version": "1.2.0"
     },
