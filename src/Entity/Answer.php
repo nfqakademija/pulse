@@ -120,5 +120,4 @@ class Answer
 
         return $this;
     }
-
 }

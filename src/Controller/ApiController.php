@@ -110,8 +110,6 @@ class ApiController extends AbstractFOSRestController
         // JOIN q.poll p
         // WHERE q.poll = :id'
     }
-
-
 }
 
 //Good one

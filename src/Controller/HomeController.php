@@ -124,7 +124,8 @@ class HomeController extends AbstractController
             ->innerJoin('s.poll', 'poll')
             ->where($queryBuilder->expr()->eq('poll.user', ':adminId'))
             ->setParameter('adminId', $adminId)
-            ->orderBy('s.datetime', 'DESC')
+            ->addOrderBy('s.datetime', 'DESC')
+            ->addOrderBy('s.name', 'ASC')
             ->getQuery();
 
         $surveys = $query->getResult();
@@ -170,6 +171,8 @@ class HomeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->flush();
+
+            return $this->redirectToRoute('polls', ['adminId' => $poll->getUser()->getId()]);
         }
 
         return $this->render('home/poll.html.twig', [
@@ -179,9 +182,9 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @Route("/poll/{pollId}/new/question/{questionNumber}", name="add_poll_question", methods={"GET", "POST"})
+     * @Route("/poll/{pollId}/new/question/{questionId}", name="add_poll_question", methods={"GET", "POST"})
      */
-    public function addPollQuestion($pollId, $questionNumber)
+    public function addPollQuestion($pollId, $questionId)
     {
         $poll = $this->getDoctrine()->getRepository(Poll::class)->find($pollId);
 
@@ -198,36 +201,36 @@ class HomeController extends AbstractController
 
         $pollQuestions = $query->getResult();
 
-        if (empty($pollQuestions)) {
-            $question = new Question();
-            $question->setPoll($poll);
-            $question->setQuestion('New Question');
-            $question->setQuestionNumber(1);
+        $newQuestion = new Question();
+        $newQuestion->setPoll($poll);
+        $newQuestion->setQuestion('New Question');
 
-            $entityManager->persist($question);
-            $entityManager->flush();
+        if (empty($pollQuestions)) {
+            $newQuestion->setQuestionNumber(1);
         } else {
+            $question = $this->getDoctrine()->getRepository(Question::class)->find($questionId);
+
+            $questionNumber = $question->getQuestionNumber();
+
             foreach ($pollQuestions as $pollQuestion) {
                 $pollQuestionNumber = $pollQuestion->getQuestionNumber();
-                if ($pollQuestionNumber > intval($questionNumber)) {
+
+                if ($pollQuestionNumber > $questionNumber) {
                     $pollQuestion->setQuestionNumber($pollQuestionNumber + 1);
                 }
             }
 
-            $question = new Question();
-            $question->setPoll($poll);
-            $question->setQuestion('New Question');
-            $question->setQuestionNumber(intval($questionNumber) + 1);
-
-            $entityManager->persist($question);
-            $entityManager->flush();
+            $newQuestion->setQuestionNumber($questionNumber + 1);
         }
+
+        $entityManager->persist($newQuestion);
+        $entityManager->flush();
 
         return $this->redirectToRoute('show_poll', ['id' => $pollId]);
     }
 
     /**
-     * @Route("/question/delete/{questionId}", methods={"DELETE"})
+     * @Route("/question/delete/{questionId}", methods={"POST"})
      */
     public function deletePollQuestion($questionId)
     {
@@ -297,7 +300,7 @@ class HomeController extends AbstractController
     }
 
     /**
-     * @Route("/option/delete/{optionId}", methods={"DELETE"})
+     * @Route("/option/delete/{optionId}", methods={"POST"})
      */
     public function deleteQuestionOption($optionId)
     {

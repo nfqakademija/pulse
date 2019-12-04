@@ -15,7 +15,6 @@ class NewQuestionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('question_number', HiddenType::class)
             ->add('question', TextareaType::class, [
                 'label' => 'Question',
                 'attr' => [

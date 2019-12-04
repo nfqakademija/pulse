@@ -27,7 +27,7 @@ class NewPollType extends AbstractType
                 'entry_options' => ['label' => false],
             ])
             ->add('save', SubmitType::class, [
-                'label' => 'Update',
+                'label' => 'Save',
                 'attr' => [
                     'class' => 'btn btn-primary btn-block',
                 ],
