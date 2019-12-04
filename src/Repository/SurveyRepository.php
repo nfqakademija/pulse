@@ -19,6 +19,23 @@ class SurveyRepository extends ServiceEntityRepository
         parent::__construct($registry, Survey::class);
     }
 
+    /**
+     * @param $userId
+     * @return Survey[] Returns an array of Survey objects
+     */
+    public function findByUser($userId)
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.poll', 'p')
+            ->andWhere('p.user = :userId')
+            ->setParameter('userId', $userId)
+            ->addOrderBy('s.datetime', 'DESC')
+            ->addOrderBy('s.name', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Survey[] Returns an array of Survey objects
     //  */

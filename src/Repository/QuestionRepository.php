@@ -19,6 +19,21 @@ class QuestionRepository extends ServiceEntityRepository
         parent::__construct($registry, Question::class);
     }
 
+    /**
+     * @param $pollId
+     * @return Question[] Returns an array of Question objects
+     */
+    public function findByPoll($pollId)
+    {
+        return $this->createQueryBuilder('q')
+            ->andWhere('q.poll = :pollId')
+            ->setParameter('pollId', $pollId)
+            ->orderBy('q.question_number', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Question[] Returns an array of Question objects
     //  */

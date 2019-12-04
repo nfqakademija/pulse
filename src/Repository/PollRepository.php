@@ -19,6 +19,20 @@ class PollRepository extends ServiceEntityRepository
         parent::__construct($registry, Poll::class);
     }
 
+    /**
+     * @param $userId
+     * @return Poll[] Returns an array of Poll objects
+     */
+    public function findByUser($userId)
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.user = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Poll[] Returns an array of Poll objects
     //  */

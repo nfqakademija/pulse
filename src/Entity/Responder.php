@@ -100,6 +100,11 @@ class Responder
         return $this->name;
     }
 
+    public function getslack_id(): ?string
+    {
+        return $this->slack_id;
+    }
+
     public function getSlackId(): ?string
     {
         return $this->slack_id;

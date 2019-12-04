@@ -19,6 +19,19 @@ class OptionRepository extends ServiceEntityRepository
         parent::__construct($registry, Option::class);
     }
 
+    /**
+     * @param $questionId
+     */
+    public function deleteByQuestion($questionId): void
+    {
+        $this->createQueryBuilder('o')
+            ->andWhere('o.question = :questionId')
+            ->setParameter('questionId', $questionId)
+            ->getQuery()
+            ->execute()
+        ;
+    }
+
     // /**
     //  * @return Option[] Returns an array of Option objects
     //  */

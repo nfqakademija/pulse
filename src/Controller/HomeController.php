@@ -15,6 +15,7 @@ use App\Entity\Survey;
 use App\Entity\Poll;
 use App\Entity\Question;
 use App\Entity\Option;
+use App\Entity\Answer;
 
 use App\Form\NewPollType;
 
@@ -107,28 +108,9 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('polls', ['adminId' => $adminId]);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
+        $polls = $this->getDoctrine()->getRepository(Poll::class)->findByUser($adminId);
 
-        $queryBuilder = $entityManager->createQueryBuilder();
-
-        $query = $queryBuilder->select(array('p'))
-            ->from('App:Poll', 'p')
-            ->where($queryBuilder->expr()->eq('p.user', ':adminId'))
-            ->setParameter('adminId', $adminId)
-            ->getQuery();
-
-        $polls = $query->getResult();
-
-        $query = $queryBuilder->select(array('s'))
-            ->from('App:Survey', 's')
-            ->innerJoin('s.poll', 'poll')
-            ->where($queryBuilder->expr()->eq('poll.user', ':adminId'))
-            ->setParameter('adminId', $adminId)
-            ->addOrderBy('s.datetime', 'DESC')
-            ->addOrderBy('s.name', 'ASC')
-            ->getQuery();
-
-        $surveys = $query->getResult();
+        $surveys = $this->getDoctrine()->getRepository(Survey::class)->findByUser($adminId);
 
         return $this->render('home/polls.html.twig', [
             'title' => 'Polls',
@@ -190,16 +172,7 @@ class HomeController extends AbstractController
 
         $entityManager = $this->getDoctrine()->getManager();
 
-        $queryBuilder = $entityManager->createQueryBuilder();
-
-        $query = $queryBuilder->select(array('q'))
-            ->from('App:Question', 'q')
-            ->where($queryBuilder->expr()->eq('q.poll', ':pollId'))
-            ->setParameter('pollId', $pollId)
-            ->orderBy('q.question_number', 'ASC')
-            ->getQuery();
-
-        $pollQuestions = $query->getResult();
+        $pollQuestions = $this->getDoctrine()->getRepository(Question::class)->findByPoll($pollId);
 
         $newQuestion = new Question();
         $newQuestion->setPoll($poll);
@@ -240,16 +213,7 @@ class HomeController extends AbstractController
 
         $entityManager = $this->getDoctrine()->getManager();
 
-        $queryBuilder = $entityManager->createQueryBuilder();
-
-        $query = $queryBuilder->select(array('q'))
-            ->from('App:Question', 'q')
-            ->where($queryBuilder->expr()->eq('q.poll', ':pollId'))
-            ->setParameter('pollId', $pollId)
-            ->orderBy('q.question_number', 'ASC')
-            ->getQuery();
-
-        $pollQuestions = $query->getResult();
+        $pollQuestions = $this->getDoctrine()->getRepository(Question::class)->findByPoll($pollId);
 
         $questionNumber = $question->getQuestionNumber();
 
@@ -263,15 +227,7 @@ class HomeController extends AbstractController
             }
         }
 
-        $queryBuilder = $entityManager->createQueryBuilder();
-
-        // Deletes question options
-        $query = $queryBuilder->delete('App:Option', 'o')
-            ->where($queryBuilder->expr()->eq('o.question', ':questionId'))
-            ->setParameter('questionId', $questionId)
-            ->getQuery();
-
-        $query->execute();
+        $this->getDoctrine()->getRepository(Option::class)->deleteByQuestion($questionId);
 
         $entityManager->remove($question);
         $entityManager->flush();
@@ -322,31 +278,7 @@ class HomeController extends AbstractController
     {
         $survey = $this->getDoctrine()->getRepository(Survey::class)->find($surveyId);
 
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $queryBuilder = $entityManager->createQueryBuilder();
-
-        $query = $queryBuilder
-            ->select(
-                array(
-                    'question.question_number, '
-                    .'question.question, '
-                    .'option.id AS optionId, '
-                    .'option.value, '
-                    .'COUNT(option.id) AS count'
-                )
-            )
-            ->from('App:Answer', 'a')
-            ->where($queryBuilder->expr()->eq('a.survey', ':surveyId'))
-            ->setParameter('surveyId', $surveyId)
-            ->innerJoin('a.answerOption', 'option')
-            ->innerJoin('option.question', 'question')
-            ->groupBy('option.id')
-            ->addOrderBy('question.question_number', 'ASC')
-            ->addOrderBy('option.id', 'ASC')
-            ->getQuery();
-
-        $answers = $query->getResult();
+        $answers = $this->getDoctrine()->getRepository(Answer::class)->findBySurvey($surveyId);
 
         $assocAnswerArray = array();
 

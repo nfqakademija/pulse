@@ -166,7 +166,8 @@
                             var questionIds = $(questionCardClass).map(function() {
                                 return this.id;
                             }).get();
-                            if (Object.keys(questionIds).length !== questionNumber) {
+                            var questionCount = Object.keys(questionIds).length;
+                            if (questionCount !== questionNumber) {
                                 $.each(questionIds , function(key, value) {
                                     var questionCardId = $('#' + value).attr('data-question-id');
                                     var addButton = $('#' + 'addQuestion' + questionCardId);
@@ -180,6 +181,10 @@
                                 });
                             }
                             $('#question' + questionId).remove();
+                            if (questionCount === 1)
+                            {
+                                $('#questions').load(location.href + ' #questions>*', '');
+                            }
                         }
                     });
                 }

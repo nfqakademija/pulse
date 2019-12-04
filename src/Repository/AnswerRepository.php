@@ -19,6 +19,34 @@ class AnswerRepository extends ServiceEntityRepository
         parent::__construct($registry, Answer::class);
     }
 
+    /**
+     * @param $surveyId
+     * @return mixed
+     */
+    public function findBySurvey($surveyId)
+    {
+        return $this->createQueryBuilder('a')
+            ->select(
+                array(
+                    'q.question_number, '
+                    .'q.question, '
+                    .'o.id AS optionId, '
+                    .'o.value, '
+                    .'COUNT(o.id) AS count'
+                )
+            )
+            ->andWhere('a.survey = :surveyId')
+            ->setParameter('surveyId', $surveyId)
+            ->innerJoin('a.answerOption', 'o')
+            ->innerJoin('o.question', 'q')
+            ->groupBy('o.id')
+            ->addOrderBy('q.question_number', 'ASC')
+            ->addOrderBy('o.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return Answer[] Returns an array of Answer objects
     //  */
