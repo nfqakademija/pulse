@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Question;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * @method Question|null find($id, $lockMode = null, $lockVersion = null)
@@ -32,6 +33,21 @@ class QuestionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
             ;
+    }
+    public function findOneByPollId($id)
+    {
+        try {
+            return $this->getEntityManager()
+                ->createQuery(
+                    'SELECT q,o
+                FROM App:Question q
+                JOIN q.options o
+                WHERE q.poll = :id'
+                )
+                ->setParameter('id', $id)
+                ->getResult();
+        } catch (NonUniqueResultException $e) {
+        }
     }
 
     // /**

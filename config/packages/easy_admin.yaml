@@ -1,4 +1,8 @@
 easy_admin:
+  list:
+    # show the 'restock' action for all entities except those which remove it
+    #actions:
+      #- { name: 'Add_Poll' }
   design:
     menu:
       - {label: "Entities"}
@@ -6,7 +10,7 @@ easy_admin:
         children:
           - {entity: Question, label: "List", icon: "th-list" }
           - {entity: Question, label: "Add", icon: "plus", params: {action: "new"}}
-          - {entity: Question, label: "Add to poll", icon: "plus", params: {action: "comming soon"}}
+         # - {entity: Question, label: "Add to poll", icon: "plus", params: {action: "comming soon"}}
       - label: "Responder"
         children:
           - {entity: Responder, label: "List", icon: "th-list" }
@@ -18,8 +22,10 @@ easy_admin:
       - label: "Poll"
         children:
           - {entity: Poll, label: "List", icon: "th-list" }
+          - { label: 'Add poll',icon: "plus", route: 'polls', params: {adminId: 1} }
           - {entity: Poll, label: "Add", icon: "plus", params: {action: "new"}}
-          - {entity: Poll, label: "Results", icon: "plus", params: {action: "show"}}
+
+          #- {entity: Poll, label: "Results", icon: "plus", params: {action: "show"}}
       - label: "Option"
         children:
             - {entity: Option, label: "List", icon: "th-list" }
@@ -38,6 +44,36 @@ easy_admin:
 
 
     # List the entity class name you want to manage
+    Question:
+      class: App\Entity\Question
+      label: "Question"
+      form:
+        fields:
+          #- {type: "group", icon: "pencil", label: "Question info", css_class: 'col-lg-7'}
+          - question_number
+          - question
+          - poll
+          - options
+         # - {type: "group", icon: "pencil", label: "Options info", css_class: 'col-lg-5'}
+
+      list:
+        fields:
+          - id
+          - question
+          - poll
+          - answers
+        actions: ['show', "edit", "delete"]
+        batch_actions: ["delete"]
+        filters: ["poll"]
+      show:
+        fields:
+          - id
+          - question
+          - question_number
+          - poll
+          - options
+
+
     Responder:
       class: App\Entity\Responder
       label: "Responder"
@@ -63,34 +99,7 @@ easy_admin:
           - email
           - teamLead
 
-    Question:
-      class: App\Entity\Question
-      label: "Question"
-      form:
-        fields:
-          - {type: "group", icon: "pencil", label: "Question info", css_class: 'col-lg-7'}
-          - question_number
-          - question
-          - poll
-          - options
-          - {type: "group", icon: "pencil", label: "Options info", css_class: 'col-lg-5'}
 
-      list:
-        fields:
-          - id
-          - question
-          - poll
-          - answers
-        actions: ['show', "edit", "delete", { name: 'asd', template: 'question/custom.html.twig' }]
-        batch_actions: ["delete"]
-        filters: ["poll"]
-      show:
-        fields:
-          - id
-          - question
-          - question_number
-          - poll
-          - options
 
     Survey:
       class: App\Entity\Survey
