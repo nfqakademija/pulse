@@ -3,13 +3,13 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
+    {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
         <div class="card">
             <div class="card-header">
                 <b>{{ form_row(form.name) }}</b>
             </div>
         </div>
-        <div id="questions">
+        <div id="questions" style="margin-top: 20px;">
             {% if form.questions|length > 0 %}
                 {% for question in form.questions
                     |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber())
@@ -17,6 +17,7 @@
                     <div class="card question"
                          id="question{{ question.vars.value.id }}"
                          data-question-id="{{ question.vars.value.id }}"
+                         style="margin-bottom: 20px;"
                     >
                         <div class="card-header">
                             <b>{{ form_row(question.question) }}</b>

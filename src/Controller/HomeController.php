@@ -40,36 +40,56 @@ class HomeController extends AbstractController
 
         $envFile = $projectDir . '/.env';
 
-        $botToken = array('');
+        $botSettings = array('token' => '', 'signingSecret' => '');
 
         $reading = fopen($envFile, 'r');
+
         while (!feof($reading)) {
             $line = fgets($reading);
-            if (stristr($line, 'BOT_TOKEN')) {
+
+            if (stristr($line, 'BOT_TOKEN') || stristr($line, 'SLACK_SIGNING_SECRET')) {
                 $lineChars = str_split($line);
+
                 for ($i = 0; $i < count($lineChars); $i++) {
                     if ($lineChars[$i] === '"') {
                         while ($i + 1 < count($lineChars)) {
                             $i++;
+
                             if ($lineChars[$i] !== '"') {
-                                $botToken[0] .= $lineChars[$i];
+                                if (stristr($line, 'BOT_TOKEN')) {
+                                    $botSettings['token'] .= $lineChars[$i];
+                                } else {
+                                    $botSettings['signingSecret'] .= $lineChars[$i];
+                                }
                             } else {
                                 break;
                             }
                         }
+                        break;
                     }
                 }
-                break;
             }
         }
+
         fclose($reading);
 
-        $form = $this->createFormBuilder($botToken)
+        $form = $this->createFormBuilder($botSettings)
             ->add('token', TextType::class, [
                 'label' => 'BOT_TOKEN',
                 'attr' => [
                     'class' => 'form-control',
-                    'value' => $botToken[0],
+                    'value' => $botSettings['token'],
+                    'style' => 'margin-bottom: 20px;',
+                    'pattern' => '[a-zA-Z0-9_-]+',
+                ],
+            ])
+            ->add('signingSecret', TextType::class, [
+                'label' => 'SLACK_SIGNING_SECRET',
+                'attr' => [
+                    'class' => 'form-control',
+                    'value' => $botSettings['signingSecret'],
+                    'style' => 'margin-bottom: 20px;',
+                    'pattern' => '[a-zA-Z0-9_-]+',
                 ],
             ])
             ->add('save', SubmitType::class, [
@@ -83,22 +103,45 @@ class HomeController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $newBotToken = $form["token"]->getData();
+            $newToken = $form["token"]->getData();
+
+            $newSigningSecret = $form["signingSecret"]->getData();
 
             $envTmpFile = $projectDir . '/env.tmp';
+
             $reading = fopen($envFile, 'r');
+
             $writing = fopen($envTmpFile, 'w');
+
             $replaced = false;
+
             while (!feof($reading)) {
                 $line = fgets($reading);
+
                 if (stristr($line, 'BOT_TOKEN')) {
-                    $line = 'BOT_TOKEN="' . $newBotToken . '"' . "\n";
+                    if (preg_match('/^[a-zA-Z0-9_-]+$/', $newToken)) {
+                        $line = 'BOT_TOKEN="' . $newToken . '"' . "\n";
+                    } else {
+                        $line = 'BOT_TOKEN="invalid"' . "\n";
+                    }
+
+                    $replaced = true;
+                } else if (stristr($line, 'SLACK_SIGNING_SECRET')) {
+                    if (preg_match('/^[a-zA-Z0-9_-]+$/', $newSigningSecret)) {
+                        $line = 'SLACK_SIGNING_SECRET="' . $newSigningSecret . '"' . "\n";
+                    } else {
+                        $line = 'SLACK_SIGNING_SECRET="invalid"' . "\n";
+                    }
+
                     $replaced = true;
                 }
+
                 fputs($writing, $line);
             }
+
             fclose($reading);
             fclose($writing);
+
             if ($replaced) {
                 rename($envTmpFile, $envFile);
             } else {

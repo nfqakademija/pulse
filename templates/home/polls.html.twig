@@ -4,7 +4,7 @@
 
 {% block body %}
     {% if is_granted("ROLE_SUPER_ADMIN") %}
-        <div class="card">
+        <div class="card" style="margin-top: 20px;">
             <div class="card-header">
                 <b>
                     {{ form_start(form) }}
@@ -14,7 +14,7 @@
             </div>
         </div>
     {% endif %}
-    <div class="btn-group">
+    <div class="btn-group" style="margin-top: 20px;">
         <button type="button"
                 class="btn btn-secondary dropdown-toggle"
                 data-toggle="dropdown"
@@ -34,7 +34,7 @@
         </div>
         <a class="btn btn-primary" href="/poll/new/{{ app.user.id }}" role="button">Create Poll</a>
     </div>
-    <div class="dropdown show">
+    <div class="dropdown show" style="margin-top: 20px;">
         <a class="btn btn-secondary dropdown-toggle"
            href="#"
            role="button"
