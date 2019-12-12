@@ -496,8 +496,7 @@ class HomeController extends AbstractController
                 if (preg_match('/^[a-zA-Z0-9_-]+$/', $newToken)) {
                     $line = 'BOT_TOKEN="' . $newToken . '"' . "\n";
                 } else {
-                    //$line = 'BOT_TOKEN="invalid"' . "\n";
-                    $line = 'BOT_TOKEN="' . $newToken . '"' . "\n";
+                    $line = 'BOT_TOKEN="invalid"' . "\n";
                 }
 
                 $replaced = true;
