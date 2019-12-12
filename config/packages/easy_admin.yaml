@@ -30,7 +30,7 @@ easy_admin:
           - {entity: Answer, label: "Add", icon: "plus", params: {action: "new"}}
       - {label: "Settings"}
       - {entity: User, icon: "user", permission: 'ROLE_SUPER_ADMIN'}
-  site_name: "Nfq Pulse"
+  site_name: "NFQ Pulse"
   user:
     name_property_path: "email"
     display_name: true
@@ -44,24 +44,39 @@ easy_admin:
       form:
         fields:
           - slackId
-          - name
           - email
+          - slackUsername
+          - department
+          - jobTitle
           - teamLead
+          - fullName
+          - site
+          - team
       list:
         fields:
           - slackId
-          - name
           - email
+          - slackUsername
+          - department
+          - jobTitle
           - teamLead
+          - fullName
+          - site
+          - team
         actions: ['show', "edit", "delete", { name: 'asd', template: 'question/custom.html.twig' }]
         batch_actions: ["delete"]
         filters: ["teamLead"]
       show:
         fields:
-          - slack_id
-          - name
+          - slackId
           - email
+          - slackUsername
+          - department
+          - jobTitle
           - teamLead
+          - fullName
+          - site
+          - team
 
     Question:
       class: App\Entity\Question
@@ -69,7 +84,7 @@ easy_admin:
       form:
         fields:
           - {type: "group", icon: "pencil", label: "Question info", css_class: 'col-lg-7'}
-          - question_number
+          - questionNumber
           - question
           - poll
           - options
@@ -88,7 +103,7 @@ easy_admin:
         fields:
           - id
           - question
-          - question_number
+          - questionNumber
           - poll
           - options
 

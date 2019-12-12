@@ -3,14 +3,18 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Validator\Constraints\File;
 
 use App\Entity\User;
+use App\Entity\Responder;
 use App\Entity\Survey;
 use App\Entity\Poll;
 use App\Entity\Question;
@@ -24,10 +28,156 @@ class HomeController extends AbstractController
     /**
      * @Route("/", name="home")
      */
-    public function index()
+    public function index(Request $request)
     {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $fileImport = array('userImportFile' => '');
+
+        $form = $this->createFormBuilder($fileImport)
+            ->add('userImportFile', FileType::class, [
+                'label' => 'User Import (CSV)',
+                'mapped' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'style' => 'margin-bottom: 20px;',
+                ],
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Import',
+                'attr' => [
+                    'class' => 'btn btn-primary',
+                ],
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $userImportFile */
+            $userImportFile = $form['userImportFile']->getData();
+
+            // Remove empty lines
+            file_put_contents(
+                $userImportFile->getRealPath(),
+                preg_replace(
+                    '~[\r\n]+~',
+                    "\r\n",
+                    trim(file_get_contents($userImportFile->getRealPath()))
+                )
+            );
+
+            $file = fopen($userImportFile->getRealPath(), 'r');
+
+            $keys = fgetcsv($file);
+
+            while (($line = fgetcsv($file)) !== FALSE) {
+                $i = -1;
+
+                $responderProperties = array();
+
+                foreach ($keys as $key) {
+                    $i++;
+                    $responderProperties[$key] = $line[$i];
+                }
+
+                $responder = new Responder();
+
+                $persist = true;
+
+                foreach ($responderProperties as $key => $value) {
+                    switch ($key) {
+                        case 'Slack id':
+                            if (!empty($value)) {
+                                $existingResponder = $this->getDoctrine()
+                                    ->getRepository(Responder::class)->find($value);
+
+                                if (!empty($existingResponder)) {
+                                    $persist = false;
+                                }
+
+                                $responder->setSlackId($value);
+                            } else {
+                                break 3;
+                            }
+                            break;
+                        case 'Email':
+                            if (!empty($value)) {
+                                $responder->setEmail($value);
+                            }
+                            break;
+                        case 'Slack username':
+                            if (!empty($value)) {
+                                $responder->setSlackUsername($value);
+                            }
+                            break;
+                        case 'Department':
+                            if (!empty($value)) {
+                                $responder->setDepartment($value);
+                            }
+                            break;
+                        case 'Job title':
+                            if (!empty($value)) {
+                                $responder->setJobTitle($value);
+                            }
+                            break;
+                        case 'Reports to':
+                            if (!empty($value)) {
+                                $teamLead = $this->getDoctrine()->getRepository(User::class)
+                                    ->findOneBy(array('email' => $value));
+
+                                if (!empty($teamLead)) {
+                                    $responder->setTeamLead($teamLead);
+                                }
+                            }
+                            break;
+                        case 'Full name':
+                            if (!empty($value)) {
+                                $responder->setFullName($value);
+                            }
+                            break;
+                        case 'Site':
+                            if (!empty($value)) {
+                                $responder->setSite($value);
+                            }
+                            break;
+                        case 'Team':
+                            if (!empty($value)) {
+                                $responder->setTeam($value);
+                            }
+                            break;
+                        default:
+                            break 3;
+                    }
+                }
+
+                if ($persist) {
+                    $entityManager->persist($responder);
+                } else {
+                    $updatedResponder = $this->getDoctrine()->getRepository(Responder::class)
+                        ->find($responder->getSlackId());
+
+                    $updatedResponder->setEmail($responder->getEmail());
+                    $updatedResponder->setSlackUsername($responder->getSlackUsername());
+                    $updatedResponder->setDepartment($responder->getDepartment());
+                    $updatedResponder->setJobTitle($responder->getJobTitle());
+                    $updatedResponder->setTeamLead($responder->getTeamLead());
+                    $updatedResponder->setFullName($responder->getFullName());
+                    $updatedResponder->setSite($responder->getSite());
+                    $updatedResponder->setTeam($responder->getTeam());
+                }
+
+                $entityManager->flush();
+            }
+
+            fclose($file);
+
+            return $this->redirectToRoute('easyadmin');
+        }
+
         return $this->render('home/index.html.twig', [
-            'someVariable' => 'NFQ Akademija',
+            'title' => 'User Import',
+            'form' => $form->createView(),
         ]);
     }
 
@@ -36,42 +186,7 @@ class HomeController extends AbstractController
      */
     public function polls(Request $request, KernelInterface $kernelInterface, $adminId)
     {
-        $projectDir = $kernelInterface->getProjectDir();
-
-        $envFile = $projectDir . '/.env';
-
-        $botSettings = array('token' => '', 'signingSecret' => '');
-
-        $reading = fopen($envFile, 'r');
-
-        while (!feof($reading)) {
-            $line = fgets($reading);
-
-            if (stristr($line, 'BOT_TOKEN') || stristr($line, 'SLACK_SIGNING_SECRET')) {
-                $lineChars = str_split($line);
-
-                for ($i = 0; $i < count($lineChars); $i++) {
-                    if ($lineChars[$i] === '"') {
-                        while ($i + 1 < count($lineChars)) {
-                            $i++;
-
-                            if ($lineChars[$i] !== '"') {
-                                if (stristr($line, 'BOT_TOKEN')) {
-                                    $botSettings['token'] .= $lineChars[$i];
-                                } else {
-                                    $botSettings['signingSecret'] .= $lineChars[$i];
-                                }
-                            } else {
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        fclose($reading);
+        $botSettings = $this->getBotSettingsFromEnv($kernelInterface);
 
         $form = $this->createFormBuilder($botSettings)
             ->add('token', TextType::class, [
@@ -107,46 +222,7 @@ class HomeController extends AbstractController
 
             $newSigningSecret = $form["signingSecret"]->getData();
 
-            $envTmpFile = $projectDir . '/env.tmp';
-
-            $reading = fopen($envFile, 'r');
-
-            $writing = fopen($envTmpFile, 'w');
-
-            $replaced = false;
-
-            while (!feof($reading)) {
-                $line = fgets($reading);
-
-                if (stristr($line, 'BOT_TOKEN')) {
-                    if (preg_match('/^[a-zA-Z0-9_-]+$/', $newToken)) {
-                        $line = 'BOT_TOKEN="' . $newToken . '"' . "\n";
-                    } else {
-                        $line = 'BOT_TOKEN="invalid"' . "\n";
-                    }
-
-                    $replaced = true;
-                } else if (stristr($line, 'SLACK_SIGNING_SECRET')) {
-                    if (preg_match('/^[a-zA-Z0-9_-]+$/', $newSigningSecret)) {
-                        $line = 'SLACK_SIGNING_SECRET="' . $newSigningSecret . '"' . "\n";
-                    } else {
-                        $line = 'SLACK_SIGNING_SECRET="invalid"' . "\n";
-                    }
-
-                    $replaced = true;
-                }
-
-                fputs($writing, $line);
-            }
-
-            fclose($reading);
-            fclose($writing);
-
-            if ($replaced) {
-                rename($envTmpFile, $envFile);
-            } else {
-                unlink($envTmpFile);
-            }
+            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret);
 
             return $this->redirectToRoute('polls', ['adminId' => $adminId]);
         }
@@ -352,5 +428,99 @@ class HomeController extends AbstractController
             'survey' => $survey,
             'answers' => $assocAnswerArray,
         ]);
+    }
+
+    private function getBotSettingsFromEnv(KernelInterface $kernelInterface): array
+    {
+        $projectDir = $kernelInterface->getProjectDir();
+
+        $envFile = $projectDir . '/.env';
+
+        $botSettings = array('token' => '', 'signingSecret' => '');
+
+        $reading = fopen($envFile, 'r');
+
+        while (!feof($reading)) {
+            $line = fgets($reading);
+
+            if (stristr($line, 'BOT_TOKEN') || stristr($line, 'SLACK_SIGNING_SECRET')) {
+                $lineChars = str_split($line);
+
+                for ($i = 0; $i < count($lineChars); $i++) {
+                    if ($lineChars[$i] === '"') {
+                        while ($i + 1 < count($lineChars)) {
+                            $i++;
+
+                            if ($lineChars[$i] !== '"') {
+                                if (stristr($line, 'BOT_TOKEN')) {
+                                    $botSettings['token'] .= $lineChars[$i];
+                                } else {
+                                    $botSettings['signingSecret'] .= $lineChars[$i];
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        fclose($reading);
+
+        return $botSettings;
+    }
+
+    private function setBotSettingsInEnv(
+        KernelInterface $kernelInterface,
+        string $newToken,
+        string $newSigningSecret
+    ) {
+        $projectDir = $kernelInterface->getProjectDir();
+
+        $envFile = $projectDir . '/.env';
+
+        $envTmpFile = $projectDir . '/env.tmp';
+
+        $reading = fopen($envFile, 'r');
+
+        $writing = fopen($envTmpFile, 'w');
+
+        $replaced = false;
+
+        while (!feof($reading)) {
+            $line = fgets($reading);
+
+            if (stristr($line, 'BOT_TOKEN')) {
+                if (preg_match('/^[a-zA-Z0-9_-]+$/', $newToken)) {
+                    $line = 'BOT_TOKEN="' . $newToken . '"' . "\n";
+                } else {
+                    //$line = 'BOT_TOKEN="invalid"' . "\n";
+                    $line = 'BOT_TOKEN="' . $newToken . '"' . "\n";
+                }
+
+                $replaced = true;
+            } elseif (stristr($line, 'SLACK_SIGNING_SECRET')) {
+                if (preg_match('/^[a-zA-Z0-9_-]+$/', $newSigningSecret)) {
+                    $line = 'SLACK_SIGNING_SECRET="' . $newSigningSecret . '"' . "\n";
+                } else {
+                    $line = 'SLACK_SIGNING_SECRET="invalid"' . "\n";
+                }
+
+                $replaced = true;
+            }
+
+            fputs($writing, $line);
+        }
+
+        fclose($reading);
+        fclose($writing);
+
+        if ($replaced) {
+            rename($envTmpFile, $envFile);
+        } else {
+            unlink($envTmpFile);
+        }
     }
 }

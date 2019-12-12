@@ -21,7 +21,7 @@ class Question
     /**
      * @ORM\Column(type="integer")
      */
-    private $question_number;
+    private $questionNumber;
 
     /**
      * @ORM\Column(type="text")
@@ -56,7 +56,7 @@ class Question
 
     public function getQuestionNumber(): ?int
     {
-        return $this->question_number;
+        return $this->questionNumber;
     }
 
     public function getQuestion(): ?string
@@ -64,9 +64,9 @@ class Question
         return $this->question;
     }
 
-    public function setQuestionNumber(?int $question_number)
+    public function setQuestionNumber(?int $questionNumber)
     {
-        $this->question_number = $question_number;
+        $this->questionNumber = $questionNumber;
     }
 
     public function setQuestion(?string $question)

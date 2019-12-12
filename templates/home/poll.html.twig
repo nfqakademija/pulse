@@ -42,7 +42,7 @@
                                 {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
                                     <div class="col align-self-center" id="option{{ option.vars.value.id }}">
                                         <li class="list-group-item">
-                                            {{ form_row(option.value) }}
+                                            <b>{{ form_row(option.value) }}</b>
                                             <button class="btn btn-danger delete-option"
                                                     data-option-id="{{ option.vars.value.id }}"
                                                     id="deleteOption{{ option.vars.value.id }}"

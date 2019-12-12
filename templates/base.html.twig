@@ -14,15 +14,17 @@
         <!-- Navigation bar -->
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
             <!-- Title -->
-            <a class="navbar-brand" href="/">NFQ Pulse</a>
+            <a class="navbar-brand" href="/admin">NFQ Pulse</a>
             <!-- Links -->
             <div class="navbar-nav">
-                <!-- Home page link -->
-                <a class="nav-item nav-link" href="/">Home</a>
+                <!-- User import page link -->
+                {% if is_granted("ROLE_SUPER_ADMIN") %}
+                    <a class="nav-item nav-link" href="/">User Import</a>
+                {% endif %}
                 <!-- Admin links -->
                 {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SUPER_ADMIN") %}
                     <!-- Admin panel link -->
-                    <a class="nav-item nav-link" href="/admin">Admin panel</a>
+                    <a class="nav-item nav-link" href="/admin">Admin Panel</a>
                     <!-- Admin polls link -->
                     <a class="nav-item nav-link" href="/polls/{{ app.user.id }}">Polls</a>
                 {% endif %}

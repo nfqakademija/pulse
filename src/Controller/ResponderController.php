@@ -83,7 +83,7 @@ class ResponderController extends AbstractController
      */
     public function delete(Request $request, Responder $responder): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$responder->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$responder->getSlackId(), $request->request->get('_token'))) {
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->remove($responder);
             $entityManager->flush();

@@ -12,21 +12,15 @@ use Doctrine\ORM\Mapping as ORM;
 class Responder
 {
     /**
-     * @ORM\Column(type="text")
-     */
-    private $name;
-
-    /**
-     * @ORM\Column(type="text")
-     */
-    private $email;
-
-
-    /**
      * @ORM\Id()
      * @ORM\Column(type="string", length=255)
      */
-    private $slack_id;
+    private $slackId;
+
+    /**
+     * @ORM\Column(type="string", length=180, nullable=true)
+     */
+    private $email;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Answer", mappedBy="responder", orphanRemoval=true)
@@ -38,25 +32,44 @@ class Responder
      */
     private $teamLead;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $slackUsername;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $department;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $jobTitle;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fullName;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $site;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $team;
+
     public function __construct()
     {
         $this->answers = new ArrayCollection();
     }
 
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
     public function getEmail(): ?string
     {
         return $this->email;
-    }
-
-    public function setName(?string $name)
-    {
-        $this->name = $name;
     }
 
     public function setEmail(?string $email)
@@ -97,22 +110,17 @@ class Responder
 
     public function __toString()
     {
-        return $this->name;
-    }
-
-    public function getslack_id(): ?string
-    {
-        return $this->slack_id;
+        return $this->slackUsername;
     }
 
     public function getSlackId(): ?string
     {
-        return $this->slack_id;
+        return $this->slackId;
     }
 
-    public function setSlackId(string $slack_id): self
+    public function setSlackId(string $slackId): self
     {
-        $this->slack_id = $slack_id;
+        $this->slackId = $slackId;
 
         return $this;
     }
@@ -125,6 +133,78 @@ class Responder
     public function setTeamLead(?User $teamLead): self
     {
         $this->teamLead = $teamLead;
+
+        return $this;
+    }
+
+    public function getSlackUsername(): ?string
+    {
+        return $this->slackUsername;
+    }
+
+    public function setSlackUsername(?string $slackUsername): self
+    {
+        $this->slackUsername = $slackUsername;
+
+        return $this;
+    }
+
+    public function getDepartment(): ?string
+    {
+        return $this->department;
+    }
+
+    public function setDepartment(?string $department): self
+    {
+        $this->department = $department;
+
+        return $this;
+    }
+
+    public function getJobTitle(): ?string
+    {
+        return $this->jobTitle;
+    }
+
+    public function setJobTitle(?string $jobTitle): self
+    {
+        $this->jobTitle = $jobTitle;
+
+        return $this;
+    }
+
+    public function getFullName(): ?string
+    {
+        return $this->fullName;
+    }
+
+    public function setFullName(?string $fullName): self
+    {
+        $this->fullName = $fullName;
+
+        return $this;
+    }
+
+    public function getSite(): ?string
+    {
+        return $this->site;
+    }
+
+    public function setSite(?string $site): self
+    {
+        $this->site = $site;
+
+        return $this;
+    }
+
+    public function getTeam(): ?string
+    {
+        return $this->team;
+    }
+
+    public function setTeam(?string $team): self
+    {
+        $this->team = $team;
 
         return $this;
     }
