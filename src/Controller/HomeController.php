@@ -71,7 +71,7 @@ class HomeController extends AbstractController
 
             $keys = fgetcsv($file);
 
-            while (($line = fgetcsv($file)) !== FALSE) {
+            while (($line = fgetcsv($file)) !== false) {
                 $i = -1;
 
                 $responderProperties = array();
