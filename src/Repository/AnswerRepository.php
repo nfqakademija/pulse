@@ -28,7 +28,7 @@ class AnswerRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('a')
             ->select(
                 array(
-                    'q.question_number, '
+                    'q.questionNumber, '
                     .'q.question, '
                     .'o.id AS optionId, '
                     .'o.value, '
@@ -40,7 +40,7 @@ class AnswerRepository extends ServiceEntityRepository
             ->innerJoin('a.answerOption', 'o')
             ->innerJoin('o.question', 'q')
             ->groupBy('o.id')
-            ->addOrderBy('q.question_number', 'ASC')
+            ->addOrderBy('q.questionNumber', 'ASC')
             ->addOrderBy('o.id', 'ASC')
             ->getQuery()
             ->getResult()

@@ -29,7 +29,7 @@ class QuestionRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('q')
             ->andWhere('q.poll = :pollId')
             ->setParameter('pollId', $pollId)
-            ->orderBy('q.question_number', 'ASC')
+            ->orderBy('q.questionNumber', 'ASC')
             ->getQuery()
             ->getResult()
             ;
