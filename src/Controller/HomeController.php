@@ -42,6 +42,16 @@ class HomeController extends AbstractController
                     'class' => 'form-control',
                     'style' => 'margin-bottom: 20px;',
                 ],
+                'constraints' => [
+                    new File([
+                        'maxSize' => '1024k',
+                        'mimeTypes' => [
+                            'text/csv',
+                            'text/plain',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid CSV file',
+                    ])
+                ],
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Import',
@@ -57,122 +67,137 @@ class HomeController extends AbstractController
             /** @var UploadedFile $userImportFile */
             $userImportFile = $form['userImportFile']->getData();
 
-            // Remove empty lines
-            file_put_contents(
-                $userImportFile->getRealPath(),
-                preg_replace(
-                    '~[\r\n]+~',
-                    "\r\n",
-                    trim(file_get_contents($userImportFile->getRealPath()))
-                )
-            );
+            $fileExtension = $userImportFile->guessExtension();
 
-            $file = fopen($userImportFile->getRealPath(), 'r');
+            $allowedExtensions = ['csv', 'txt'];
 
-            $keys = fgetcsv($file);
+            if (in_array($fileExtension, $allowedExtensions)) {
+                // Remove empty lines
+                file_put_contents(
+                    $userImportFile->getRealPath(),
+                    preg_replace(
+                        '~[\r\n]+~',
+                        "\r\n",
+                        trim(file_get_contents($userImportFile->getRealPath()))
+                    )
+                );
 
-            while (($line = fgetcsv($file)) !== false) {
-                $i = -1;
+                $file = fopen($userImportFile->getRealPath(), 'r');
 
-                $responderProperties = array();
+                $keys = fgetcsv($file);
 
-                foreach ($keys as $key) {
-                    $i++;
-                    $responderProperties[$key] = $line[$i];
-                }
+                $invalidKeyFound = false;
 
-                $responder = new Responder();
+                while (($line = fgetcsv($file)) !== false) {
+                    $i = -1;
 
-                $persist = true;
+                    $responderProperties = array();
 
-                foreach ($responderProperties as $key => $value) {
-                    switch ($key) {
-                        case 'Slack id':
-                            if (!empty($value)) {
-                                $existingResponder = $this->getDoctrine()
-                                    ->getRepository(Responder::class)->find($value);
+                    foreach ($keys as $key) {
+                        $i++;
+                        $responderProperties[$key] = $line[$i];
+                    }
 
-                                if (!empty($existingResponder)) {
-                                    $persist = false;
+                    $responder = new Responder();
+
+                    $persist = true;
+
+                    $responderDataIsValid = true;
+
+                    foreach ($responderProperties as $key => $value) {
+                        switch ($key) {
+                            case 'Slack id':
+                                if (!empty($value)) {
+                                    $existingResponder = $this->getDoctrine()
+                                        ->getRepository(Responder::class)->find($value);
+
+                                    if (!empty($existingResponder)) {
+                                        $persist = false;
+                                    }
+
+                                    $responder->setSlackId($value);
+                                } else {
+                                    $responderDataIsValid = false;
                                 }
+                                break;
+                            case 'Email':
+                                if (!empty($value)) {
+                                    $responder->setEmail($value);
+                                }
+                                break;
+                            case 'Slack username':
+                                if (!empty($value)) {
+                                    $responder->setSlackUsername($value);
+                                }
+                                break;
+                            case 'Department':
+                                if (!empty($value)) {
+                                    $responder->setDepartment($value);
+                                }
+                                break;
+                            case 'Job title':
+                                if (!empty($value)) {
+                                    $responder->setJobTitle($value);
+                                }
+                                break;
+                            case 'Reports to':
+                                if (!empty($value)) {
+                                    $teamLead = $this->getDoctrine()->getRepository(User::class)
+                                        ->findOneBy(array('email' => $value));
 
-                                $responder->setSlackId($value);
-                            } else {
+                                    if (!empty($teamLead)) {
+                                        $responder->setTeamLead($teamLead);
+                                    }
+                                }
+                                break;
+                            case 'Full name':
+                                if (!empty($value)) {
+                                    $responder->setFullName($value);
+                                }
+                                break;
+                            case 'Site':
+                                if (!empty($value)) {
+                                    $responder->setSite($value);
+                                }
+                                break;
+                            case 'Team':
+                                if (!empty($value)) {
+                                    $responder->setTeam($value);
+                                }
+                                break;
+                            default:
+                                $invalidKeyFound = true;
                                 break 3;
-                            }
-                            break;
-                        case 'Email':
-                            if (!empty($value)) {
-                                $responder->setEmail($value);
-                            }
-                            break;
-                        case 'Slack username':
-                            if (!empty($value)) {
-                                $responder->setSlackUsername($value);
-                            }
-                            break;
-                        case 'Department':
-                            if (!empty($value)) {
-                                $responder->setDepartment($value);
-                            }
-                            break;
-                        case 'Job title':
-                            if (!empty($value)) {
-                                $responder->setJobTitle($value);
-                            }
-                            break;
-                        case 'Reports to':
-                            if (!empty($value)) {
-                                $teamLead = $this->getDoctrine()->getRepository(User::class)
-                                    ->findOneBy(array('email' => $value));
+                        }
+                    }
 
-                                if (!empty($teamLead)) {
-                                    $responder->setTeamLead($teamLead);
-                                }
-                            }
-                            break;
-                        case 'Full name':
-                            if (!empty($value)) {
-                                $responder->setFullName($value);
-                            }
-                            break;
-                        case 'Site':
-                            if (!empty($value)) {
-                                $responder->setSite($value);
-                            }
-                            break;
-                        case 'Team':
-                            if (!empty($value)) {
-                                $responder->setTeam($value);
-                            }
-                            break;
-                        default:
-                            break 3;
+                    if ($responderDataIsValid) {
+                        if ($persist) {
+                            $entityManager->persist($responder);
+                        } else {
+                            $updatedResponder = $this->getDoctrine()->getRepository(Responder::class)
+                                ->find($responder->getSlackId());
+
+                            $updatedResponder->setEmail($responder->getEmail());
+                            $updatedResponder->setSlackUsername($responder->getSlackUsername());
+                            $updatedResponder->setDepartment($responder->getDepartment());
+                            $updatedResponder->setJobTitle($responder->getJobTitle());
+                            $updatedResponder->setTeamLead($responder->getTeamLead());
+                            $updatedResponder->setFullName($responder->getFullName());
+                            $updatedResponder->setSite($responder->getSite());
+                            $updatedResponder->setTeam($responder->getTeam());
+                        }
+
+                        $entityManager->flush();
                     }
                 }
 
-                if ($persist) {
-                    $entityManager->persist($responder);
-                } else {
-                    $updatedResponder = $this->getDoctrine()->getRepository(Responder::class)
-                        ->find($responder->getSlackId());
+                fclose($file);
 
-                    $updatedResponder->setEmail($responder->getEmail());
-                    $updatedResponder->setSlackUsername($responder->getSlackUsername());
-                    $updatedResponder->setDepartment($responder->getDepartment());
-                    $updatedResponder->setJobTitle($responder->getJobTitle());
-                    $updatedResponder->setTeamLead($responder->getTeamLead());
-                    $updatedResponder->setFullName($responder->getFullName());
-                    $updatedResponder->setSite($responder->getSite());
-                    $updatedResponder->setTeam($responder->getTeam());
+                if (!$invalidKeyFound) {
+                    return $this->redirectToRoute('easyadmin');
                 }
-
-                $entityManager->flush();
             }
-
-            fclose($file);
-
-            return $this->redirectToRoute('easyadmin');
         }
 
         return $this->render('home/index.html.twig', [

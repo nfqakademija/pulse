@@ -37,5 +37,8 @@ security:
          - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
          - { path: ^/polls/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
          - { path: ^/poll/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
+         - { path: ^/question/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
+         - { path: ^/option/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
+         - { path: ^/graph/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
          - { path: ^/api/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+         - { path: ^/, roles: ROLE_SUPER_ADMIN }
