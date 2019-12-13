@@ -86,9 +86,17 @@ class HomeController extends AbstractController
 
                 $keys = fgetcsv($file);
 
+                $invalidKey = '';
+
                 $invalidKeyFound = false;
 
                 $noChangesWereMade = true;
+
+                $invalidLinesWereFound = false;
+
+                $addedRespondersCount = 0;
+
+                $updatedRespondersCount = 0;
 
                 while (($line = fgetcsv($file)) !== false) {
                     if (count($keys) > 0 && count($line) > 0 && count($keys) === count($line)) {
@@ -171,6 +179,7 @@ class HomeController extends AbstractController
                                     }
                                     break;
                                 default:
+                                    $invalidKey = $key;
                                     $invalidKeyFound = true;
                                     break 3;
                             }
@@ -180,8 +189,12 @@ class HomeController extends AbstractController
                             $noChangesWereMade = false;
 
                             if ($persist) {
+                                $addedRespondersCount++;
+
                                 $entityManager->persist($responder);
                             } else {
+                                $updatedRespondersCount++;
+
                                 $updatedResponder = $this->getDoctrine()
                                     ->getRepository(Responder::class)
                                     ->find($responder->getSlackId());
@@ -198,14 +211,52 @@ class HomeController extends AbstractController
 
                             $entityManager->flush();
                         }
+                    } else {
+                        $invalidLinesWereFound = true;
+
+                        $this->addFlash(
+                            'info',
+                            'Invalid line values or value count: "' . implode('","', $line) . '"'
+                        );
                     }
                 }
 
                 fclose($file);
 
-                if (!$invalidKeyFound && !$noChangesWereMade) {
+                if ($invalidKeyFound) {
+                    $this->addFlash(
+                        'info',
+                        'File contains invalid key (' . $invalidKey . ')!'
+                    );
+                }
+
+                if ($noChangesWereMade) {
+                    $this->addFlash(
+                        'info',
+                        'No changes were made (please check CSV file structure)!'
+                    );
+                }
+
+                if (!$noChangesWereMade && $invalidLinesWereFound) {
+                    $this->addFlash(
+                        'info',
+                        'Added responders count: ' . $addedRespondersCount
+                    );
+
+                    $this->addFlash(
+                        'info',
+                        'Updated responders count: ' . $updatedRespondersCount
+                    );
+                }
+
+                if (!$invalidKeyFound && !$noChangesWereMade && !$invalidLinesWereFound) {
                     return $this->redirectToRoute('easyadmin');
                 }
+            } else {
+                $this->addFlash(
+                    'info',
+                    'Invalid file extension!'
+                );
             }
         }
 
