@@ -2,7 +2,7 @@
 
 namespace App\Bot;
 
-//require '../../vendor/autoload.php';
+// require '../../vendor/autoload.php';
 
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Drivers\DriverManager;
