@@ -577,8 +577,7 @@ class HomeController extends AbstractController
         string $newToken,
         string $newSigningSecret,
         string $newWebHook
-    )
-    {
+    ) {
         $projectDir = $kernelInterface->getProjectDir();
 
         $envFile = $projectDir . '/.env';
