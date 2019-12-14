@@ -567,8 +567,7 @@ class HomeController extends AbstractController
         while (!feof($reading)) {
             $line = fgets($reading);
 
-            if (
-                stristr($line, 'BOT_TOKEN')
+            if (stristr($line, 'BOT_TOKEN')
                 || stristr($line, 'SLACK_SIGNING_SECRET')
                 || stristr($line, 'WEB_HOOK')
             ) {
