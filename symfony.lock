@@ -1,4 +1,7 @@
 {
+    "alek13/slack": {
+        "version": "1.10.1"
+    },
     "botman/botman": {
         "version": "2.5.0"
     },

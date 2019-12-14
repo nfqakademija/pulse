@@ -30,7 +30,6 @@ class HomeController extends AbstractController
      */
     public function triggerTheBot(KernelInterface $kernelInterface)
     {
-
         try {
             $hookUrl = $_ENV['WEB_HOOK'];
             $settings = [
@@ -44,7 +43,11 @@ class HomeController extends AbstractController
         } catch (\Throwable $t) {
             var_dump($t);
         }
-        return $this->redirect('admin/?action=list&entity=Poll');
+
+        return $this->redirectToRoute('easyadmin', [
+            'action' => 'list',
+            'entity' => 'Poll',
+        ]);
     }
 
     /**
@@ -272,7 +275,10 @@ class HomeController extends AbstractController
                 }
 
                 if (!$invalidKeyFound && !$noChangesWereMade && !$invalidLinesWereFound) {
-                    return $this->redirectToRoute('easyadmin');
+                    return $this->redirectToRoute('easyadmin', [
+                        'action' => 'list',
+                        'entity' => 'Responder',
+                    ]);
                 }
             } else {
                 $this->addFlash(
@@ -314,6 +320,15 @@ class HomeController extends AbstractController
                     'pattern' => '[a-zA-Z0-9_-]+',
                 ],
             ])
+            ->add('webHook', TextType::class, [
+                'label' => 'WEB_HOOK',
+                'attr' => [
+                    'class' => 'form-control',
+                    'value' => $botSettings['webHook'],
+                    'style' => 'margin-bottom: 20px;',
+                    'pattern' => '[a-zA-Z0-9_-]+',
+                ],
+            ])
             ->add('save', SubmitType::class, [
                 'label' => 'Save',
                 'attr' => [
@@ -329,7 +344,9 @@ class HomeController extends AbstractController
 
             $newSigningSecret = $form["signingSecret"]->getData();
 
-            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret);
+            $newWebHook = $form["webHook"]->getData();
+
+            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret, $newWebHook);
 
             return $this->redirectToRoute('polls', ['adminId' => $adminId]);
         }
@@ -543,14 +560,18 @@ class HomeController extends AbstractController
 
         $envFile = $projectDir . '/.env';
 
-        $botSettings = array('token' => '', 'signingSecret' => '');
+        $botSettings = array('token' => '', 'signingSecret' => '', 'webHook' => '');
 
         $reading = fopen($envFile, 'r');
 
         while (!feof($reading)) {
             $line = fgets($reading);
 
-            if (stristr($line, 'BOT_TOKEN') || stristr($line, 'SLACK_SIGNING_SECRET')) {
+            if (
+                stristr($line, 'BOT_TOKEN')
+                || stristr($line, 'SLACK_SIGNING_SECRET')
+                || stristr($line, 'WEB_HOOK')
+            ) {
                 $lineChars = str_split($line);
 
                 for ($i = 0; $i < count($lineChars); $i++) {
@@ -561,8 +582,10 @@ class HomeController extends AbstractController
                             if ($lineChars[$i] !== '"') {
                                 if (stristr($line, 'BOT_TOKEN')) {
                                     $botSettings['token'] .= $lineChars[$i];
-                                } else {
+                                } elseif (stristr($line, 'SLACK_SIGNING_SECRET')) {
                                     $botSettings['signingSecret'] .= $lineChars[$i];
+                                } else {
+                                    $botSettings['webHook'] .= $lineChars[$i];
                                 }
                             } else {
                                 break;
@@ -579,8 +602,12 @@ class HomeController extends AbstractController
         return $botSettings;
     }
 
-    private function setBotSettingsInEnv(KernelInterface $kernelInterface, string $newToken, string $newSigningSecret)
-    {
+    private function setBotSettingsInEnv(
+        KernelInterface $kernelInterface,
+        string $newToken,
+        string $newSigningSecret,
+        string $newWebHook
+    ) {
         $projectDir = $kernelInterface->getProjectDir();
 
         $envFile = $projectDir . '/.env';
@@ -609,6 +636,14 @@ class HomeController extends AbstractController
                     $line = 'SLACK_SIGNING_SECRET="' . $newSigningSecret . '"' . "\n";
                 } else {
                     $line = 'SLACK_SIGNING_SECRET="invalid"' . "\n";
+                }
+
+                $replaced = true;
+            } elseif (stristr($line, 'WEB_HOOK')) {
+                if (preg_match('/^[a-zA-Z0-9_-]+$/', $newWebHook)) {
+                    $line = 'WEB_HOOK="' . $newWebHook . '"' . "\n";
+                } else {
+                    $line = 'WEB_HOOK="invalid"' . "\n";
                 }
 
                 $replaced = true;

@@ -27,11 +27,13 @@
                     <a class="nav-item nav-link" href="/admin">Admin Panel</a>
                     <!-- Admin polls link -->
                     <a class="nav-item nav-link" href="/polls/{{ app.user.id }}">Polls</a>
+                    <!-- Bot trigger link -->
+                    <a class="nav-item nav-link" href="/trigger">Trigger Bot</a>
                 {% endif %}
-                <a class="nav-item nav-link" href="/trigger">Trigger the bot</a>
-                <a class="nav-item nav-link" href="/logout">Logout ({{ app.user.email }})</a>
-
-
+                <!-- Logout link -->
+                {% if app.user %}
+                    <a class="nav-item nav-link" href="/logout">Logout ({{ app.user.email }})</a>
+                {% endif %}
             </div>
         </nav>
         <!-- Page container -->
