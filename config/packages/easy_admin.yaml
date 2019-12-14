@@ -113,7 +113,8 @@ easy_admin:
       class: App\Entity\Poll
       list:
         actions:
-          - { name: 'ask_poll', type: 'route' }
+          - { name: 'send_team', type: 'route' }
+          - { name: 'send_workspace', type: 'route' }
     User:
       class: App\Entity\User
     Answer:

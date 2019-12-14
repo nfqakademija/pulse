@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Answer;
+use App\Entity\Poll;
+use App\Entity\Responder;
 use App\Form\AnswerType;
 use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -83,10 +85,29 @@ class ApiController extends AbstractFOSRestController
         $answers = $repository->findall();
         return $this->handleView($this->view($answers));
     }
+    /**
+     * @Rest\Get("api/responders/{id}")
+     * @return Response
+     */
+    public function getResponders($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Responder::class);
+        $responders = $repository->findRespondersSlackIdByAdminId($id);
+        return $this->handleView($this->view($responders));
+    }
+    /**
+     * @Rest\Get("/api/poll/{id}")
+     * @return Response
+     */
+    public function getPollById($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Poll::class);
+        $poll = $repository->findPollById($id);
+        return $this->handleView($this->view($poll));
+    }
 
     /**
-     * @Route("/api/poll/{id}", name="api")
-     * @Method("POST")
+     * @Route("/api/get/full/poll/{id}", name="api/get/full/poll")
      * @param $id
      * @return Response
      */

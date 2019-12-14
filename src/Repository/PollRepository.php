@@ -34,7 +34,7 @@ class PollRepository extends ServiceEntityRepository
             ;
     }
 
-    public function findOneById($id): ?Poll
+    public function findFullPollById($id): ?Poll
     {
         try {
             return $this->getEntityManager()
@@ -48,6 +48,17 @@ class PollRepository extends ServiceEntityRepository
                 ->getOneOrNullResult();
         } catch (NonUniqueResultException $e) {
         }
+    }
+
+    public function findPollById($id)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('p.id, p.name, u.id as user ')
+            ->innerJoin('p.user', 'u')
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
     }
 
     // /**
@@ -67,15 +78,4 @@ class PollRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Poll
-    {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

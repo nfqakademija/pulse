@@ -18,4 +18,18 @@ class ResponderRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Responder::class);
     }
+
+    /**
+     * @param $team_lead_id
+     * @return array
+     */
+    public function findRespondersSlackIdByAdminId($team_lead_id):array
+    {
+        $q = $this->createQueryBuilder('r')
+            ->select('r.slackId')
+            ->andWhere('r.teamLead = :team_lead_id')
+            ->setParameter('team_lead_id', $team_lead_id);
+
+        return $q->getQuery()->getArrayResult();
+    }
 }
