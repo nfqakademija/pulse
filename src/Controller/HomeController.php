@@ -64,9 +64,7 @@ class HomeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $userImportFile */
             $userImportFile = $form['userImportFile']->getData();
-
             $fileExtension = $userImportFile->guessExtension();
-
             $allowedExtensions = ['csv', 'txt'];
 
             if (in_array($fileExtension, $allowedExtensions)) {
@@ -579,7 +577,8 @@ class HomeController extends AbstractController
         string $newToken,
         string $newSigningSecret,
         string $newWebHook
-    ) {
+    )
+    {
         $projectDir = $kernelInterface->getProjectDir();
 
         $envFile = $projectDir . '/.env';

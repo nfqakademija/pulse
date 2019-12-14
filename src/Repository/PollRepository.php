@@ -30,8 +30,7 @@ class PollRepository extends ServiceEntityRepository
             ->andWhere('p.user = :userId')
             ->setParameter('userId', $userId)
             ->getQuery()
-            ->getResult()
-            ;
+            ->getResult();
     }
 
     public function findFullPollById($id): ?Poll
@@ -77,5 +76,4 @@ class PollRepository extends ServiceEntityRepository
         ;
     }
     */
-
 }

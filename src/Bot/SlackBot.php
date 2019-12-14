@@ -31,21 +31,6 @@ class SlackBot
         ], $this->loop);
     }
 
-
-    protected function getAllUsers(): array
-    {
-        $user_list_url = "https://slack.com/api/users.list?token=" . $_ENV["BOT_TOKEN"] . "&pretty=1";
-        $user_list = json_decode(file_get_contents($user_list_url), true);
-        $user_data = [];
-        foreach ($user_list["members"] as $user_info) {
-            if (isset($user_info["profile"]["email"])) {
-                array_push($user_data, ['id' => $user_info["id"],
-                    'name' => $user_info["name"], "email" => $user_info["profile"]["email"]]);
-            }
-        }
-        return $user_data;
-    }
-
     public function getTriggerForTeam(): void
     {
         $this->botman->hears('team_poll: {id}', function ($bot, $id) {
@@ -113,6 +98,20 @@ class SlackBot
             var_dump($e);
         }
         return $data;
+    }
+
+    protected function getAllUsers(): array
+    {
+        $user_list_url = "https://slack.com/api/users.list?token=" . $_ENV["BOT_TOKEN"] . "&pretty=1";
+        $user_list = json_decode(file_get_contents($user_list_url), true);
+        $user_data = [];
+        foreach ($user_list["members"] as $user_info) {
+            if (isset($user_info["profile"]["email"])) {
+                array_push($user_data, ['id' => $user_info["id"],
+                    'name' => $user_info["name"], "email" => $user_info["profile"]["email"]]);
+            }
+        }
+        return $user_data;
     }
 
     protected function handleData($data, $index)
