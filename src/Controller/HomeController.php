@@ -10,9 +10,7 @@ use App\Entity\Responder;
 use App\Entity\Survey;
 use App\Entity\User;
 use App\Form\NewPollType;
-use Maknz\Slack\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,35 +23,6 @@ use Symfony\Component\Validator\Constraints\File;
 
 class HomeController extends AbstractController
 {
-    /**
-     * @Route(path = "/", name = "ask_poll")
-     */
-    public function triggerTheBot(Request $request)
-    {
-        $id = $request->query->get('id');
-
-        try {
-            $hookUrl = $_ENV['WEB_HOOK'];
-            $settings = [
-                'username' => 'admin',
-                'channel' => '@arvbot',
-            ];
-
-            $client = new Client($hookUrl, $settings);
-            $msg = 'Send poll form panel '.$id;
-            // echo($msg);
-            $client->send($msg);
-
-        } catch (\Throwable $t) {
-            var_dump($t);
-        }
-
-        return $this->redirectToRoute('easyadmin', [
-            'action' => 'list',
-            'entity' => 'Poll',
-        ]);
-    }
-
     /**
      * @Route("/", name="home")
      */
