@@ -31,9 +31,10 @@ $user_list = json_decode(file_get_contents($user_list_url), true);
 
 $user_data = [];
 foreach ($user_list["members"] as $user_info) {
-    if (isset($user_info["profile"]["email"]))
+    if (isset($user_info["profile"]["email"])) {
         array_push($user_data, ['id' => $user_info["id"],
             'name' => $user_info["name"], "email" => $user_info["profile"]["email"]]);
+    }
     // Arvydas UPQGLUEMQ
     // Titas UQ3A9UJ5N
     // Kristijonas UQ3AJBYSH
@@ -46,7 +47,7 @@ function validUser($user)
 }
 
 ///metodas naudojamas is admin paneles trigerinti bota, kuris sius visiems useriams polla
-$botman->hears('aaa', function ($bot) {
+$botman->hears('send form panel', function ($bot) {
     $link = "https://pulse.projektai.nfqakademija.lt/api/poll/1";
     try {
         $data = json_decode(file_get_contents($link), true);
@@ -65,26 +66,20 @@ $botman->hears('aaa', function ($bot) {
             $question->addButtons([Button::create($option["value"])->value($option["value"])]);
         };
 
-
-
-
         $user_list_url = "https://slack.com/api/users.list?token=" . $_ENV["BOT_TOKEN"] . "&pretty=1";
         $user_list = json_decode(file_get_contents($user_list_url), true);
 
-
         $user_data = [];
         foreach ($user_list["members"] as $user_info) {
-            if (isset($user_info["profile"]["email"]))
+            if (isset($user_info["profile"]["email"])) {
                 array_push($user_data, ['id' => $user_info["id"],
                     'name' => $user_info["name"], "email" => $user_info["profile"]["email"]]);
+            }
             // Arvydas UPQGLUEMQ
             // Titas UQ3A9UJ5N
             // Kristijonas UQ3AJBYSH
             // Andrius UPVCV06U9
         }
-
-
-
 
 
         foreach ($user_data as $user) {
@@ -120,7 +115,6 @@ $botman->hears('Send poll', function ($bot) {
                 $selectedText = $response->getText(); // will be either 'Of course' or 'Hell no!'
                 var_dump($selectedText);
                 $this->firstname = $response->getText();
-
             }
         });
     }
@@ -191,14 +185,12 @@ $botman->hears('hook', function ($bot) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                 'Content-Type: application/json',
-                'Content-Length: ' . strlen($data_string))
-        );
+                'Content-Length: ' . strlen($data_string)));
         //Execute CURL
         $result = curl_exec($ch);
     }
 
     return $result;
-
 });
 
 
@@ -249,6 +241,3 @@ $botman->hears('hook', function ($bot) {
 
 //$botman->say('HELLO MA FRIEND', 'UPQGLUEMQ');
 $loop->run();
-
-?>
-

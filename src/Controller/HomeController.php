@@ -2,38 +2,37 @@
 
 namespace App\Controller;
 
+use App\Entity\Answer;
+use App\Entity\Option;
+use App\Entity\Poll;
+use App\Entity\Question;
+use App\Entity\Responder;
+use App\Entity\Survey;
+use App\Entity\User;
+use App\Form\NewPollType;
 use Maknz\Slack\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\File;
-
-use App\Entity\User;
-use App\Entity\Responder;
-use App\Entity\Survey;
-use App\Entity\Poll;
-use App\Entity\Question;
-use App\Entity\Option;
-use App\Entity\Answer;
-
-use App\Form\NewPollType;
 
 class HomeController extends AbstractController
 {
     /**
      * @Route("/trigger", name="trigger")
      */
-    public function triggerTheBot()
+    public function triggerTheBot(KernelInterface $kernelInterface)
     {
 
         try {
-            $hookUrl = 'https://hooks.slack.com/services/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';
+            $hookUrl = $_ENV['WEB_HOOK'];
             $settings = [
                 'username' => 'admin',
                 'channel' => '@arvbot',
@@ -41,13 +40,11 @@ class HomeController extends AbstractController
 
             $client = new Client($hookUrl, $settings);
 
-            $client->send('aaa');
-
+            $client->send('send form panel');
         } catch (\Throwable $t) {
             var_dump($t);
         }
         return $this->redirect('admin/?action=list&entity=Poll');
-
     }
 
     /**
@@ -582,11 +579,8 @@ class HomeController extends AbstractController
         return $botSettings;
     }
 
-    private function setBotSettingsInEnv(
-        KernelInterface $kernelInterface,
-        string $newToken,
-        string $newSigningSecret
-    ) {
+    private function setBotSettingsInEnv(KernelInterface $kernelInterface, string $newToken, string $newSigningSecret)
+    {
         $projectDir = $kernelInterface->getProjectDir();
 
         $envFile = $projectDir . '/.env';
