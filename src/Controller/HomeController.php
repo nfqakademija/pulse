@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Maknz\Slack\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -25,6 +26,30 @@ use App\Form\NewPollType;
 
 class HomeController extends AbstractController
 {
+    /**
+     * @Route("/trigger", name="trigger")
+     */
+    public function triggerTheBot()
+    {
+
+        try {
+            $hookUrl = 'https://hooks.slack.com/services/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';
+            $settings = [
+                'username' => 'admin',
+                'channel' => '@arvbot',
+            ];
+
+            $client = new Client($hookUrl, $settings);
+
+            $client->send('aaa');
+
+        } catch (\Throwable $t) {
+            var_dump($t);
+        }
+        return $this->redirect('admin/?action=list&entity=Poll');
+
+    }
+
     /**
      * @Route("/", name="home")
      */
