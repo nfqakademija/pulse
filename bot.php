@@ -28,6 +28,7 @@ $botman = BotManFactory::createForRTM([
 $user_list_url = "https://slack.com/api/users.list?token=" . $_ENV["BOT_TOKEN"] . "&pretty=1";
 $user_list = json_decode(file_get_contents($user_list_url), true);
 
+
 $user_data = [];
 foreach ($user_list["members"] as $user_info) {
     if (isset($user_info["profile"]["email"]))
@@ -44,25 +45,55 @@ function validUser($user)
     return true;
 }
 
-function sendQuestion($botman, $user_data)
-{
-    $question = "Test";
-    $options = ['Option 1', 'Option 2'];
-
-    $question = Question::create($question)
-        ->callbackId($question);
-
-    foreach ($options as $option) {
-        $question->addButtons([Button::create($option)->value($option)]);
-    };
-
-    foreach ($user_data as $user) {
-        $botman->say($question, $user['id']);
+///metodas naudojamas is admin paneles trigerinti bota, kuris sius visiems useriams polla
+$botman->hears('aaa', function ($bot) {
+    $link = "https://pulse.projektai.nfqakademija.lt/api/poll/1";
+    try {
+        $data = json_decode(file_get_contents($link), true);
+    } catch (\Throwable $e) {
+        var_dump($e);
     }
-}
+    $index = 0;
+    foreach ($data as $question) {
+        $question = $data[$index]["question"];
+        $options = $data[$index]["options"];
+        $index++;
+        $question = Question::create($question)
+            ->callbackId($question);
+
+        foreach ($options as $option) {
+            $question->addButtons([Button::create($option["value"])->value($option["value"])]);
+        };
+
+
+
+
+        $user_list_url = "https://slack.com/api/users.list?token=" . $_ENV["BOT_TOKEN"] . "&pretty=1";
+        $user_list = json_decode(file_get_contents($user_list_url), true);
+
+
+        $user_data = [];
+        foreach ($user_list["members"] as $user_info) {
+            if (isset($user_info["profile"]["email"]))
+                array_push($user_data, ['id' => $user_info["id"],
+                    'name' => $user_info["name"], "email" => $user_info["profile"]["email"]]);
+            // Arvydas UPQGLUEMQ
+            // Titas UQ3A9UJ5N
+            // Kristijonas UQ3AJBYSH
+            // Andrius UPVCV06U9
+        }
+
+
+
+
+
+        foreach ($user_data as $user) {
+            $bot->say($question, $user['id']);
+        }
+    }
+});
 
 //sendQuestion($botman, $user_data);
-
 //Apklausos funckija
 $botman->hears('Send poll', function ($bot) {
     $link = "https://pulse.projektai.nfqakademija.lt/api/poll/1";
@@ -95,10 +126,9 @@ $botman->hears('Send poll', function ($bot) {
     }
 });
 
-
 //Apklausa per hookus
 $botman->hears('hook', function ($bot) {
-    $urls = ['https://hooks.slack.com/services/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'];
+    $urls = ['https://hooks.slack.com/services/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'];
 //        "https://hooks.slack.com/services/TPVCUHMLZ/  BQQJQPYGN/wEKfm9tAB1WZzu7vPN7llMBt",
 //        "https://hooks.slack.com/services/TPVCUHMLZ/  BQ9JTDMK4/lLoWPuQVVkTivH0WaOCtCYB7",
 //        "https://hooks.slack.com/services/TPVCUHMLZ/  BQEERC8D7/Bi1uOQc7fgyfuYi5SHh2aXVv"];
