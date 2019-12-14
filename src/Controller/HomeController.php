@@ -26,10 +26,12 @@ use Symfony\Component\Validator\Constraints\File;
 class HomeController extends AbstractController
 {
     /**
-     * @Route("/trigger", name="trigger")
+     * @Route(path = "/", name = "ask_poll")
      */
-    public function triggerTheBot(KernelInterface $kernelInterface)
+    public function triggerTheBot(Request $request)
     {
+        $id = $request->query->get('id');
+
         try {
             $hookUrl = $_ENV['WEB_HOOK'];
             $settings = [
@@ -38,8 +40,10 @@ class HomeController extends AbstractController
             ];
 
             $client = new Client($hookUrl, $settings);
+            $msg = 'Send poll form panel '.$id;
+            // echo($msg);
+            $client->send($msg);
 
-            $client->send('send form panel');
         } catch (\Throwable $t) {
             var_dump($t);
         }

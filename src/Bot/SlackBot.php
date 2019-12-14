@@ -15,16 +15,96 @@ use React\EventLoop\Factory;
 class SlackBot
 {
     private $botman;
+    public $loop;
 
     public function __construct($token)
     {
+
         DriverManager::loadDriver(SlackRTMDriver::class);
-        $loop = Factory::create();
+        $this->loop = Factory::create();
         $this->botman = BotManFactory::createForRTM([
             'slack' => [
                 'token' => $token,
             ],
-        ], $loop);
+        ], $this->loop);
+    }
+
+
+    protected function getAllUsers(): array
+    {
+        $user_list_url = "https://slack.com/api/users.list?token=" . $_ENV["BOT_TOKEN"] . "&pretty=1";
+        $user_list = json_decode(file_get_contents($user_list_url), true);
+
+        $user_data = [];
+        foreach ($user_list["members"] as $user_info) {
+            if (isset($user_info["profile"]["email"])) {
+                array_push($user_data, ['id' => $user_info["id"],
+                    'name' => $user_info["name"], "email" => $user_info["profile"]["email"]]);
+            }
+        }
+        return $user_data;
+    }
+
+    public function getTriggerFromAdminPanel()
+    {
+        $this->botman->hears('Send poll form panel {id}', function ($bot, $id) {
+            $data = $this->getPoll("https://pulse.projektai.nfqakademija.lt/api/poll/$id");
+            $index = 0;
+            foreach ($data as $question) {
+                $question = $this->handleData($data, $index);
+                $index++;
+                $user_data = $this->getAllUsers();
+
+                foreach ($user_data as $user) {
+                    $bot->say($question, $user['id']);
+                }
+            }
+        });
+    }
+
+    protected function getPoll(string $link)
+    {
+        $data = [];
+        try {
+            $data = json_decode(file_get_contents($link), true);
+        } catch (\Throwable $e) {
+            var_dump($e);
+        }
+        return $data;
+    }
+
+    protected function handleData($data, $index)
+    {
+        $question = $data[$index]["question"];
+        $options = $data[$index]["options"];
+        $question = Question::create($question)
+            ->callbackId($question);
+
+        foreach ($options as $option) {
+            $question->addButtons([Button::create($option["value"])->value($option["value"])]);
+        };
+        return $question;
+    }
+
+    public function getTriggerFromSlackDM()
+    {
+        $this->botman->hears('Send poll {id}', function ($bot, $id) {
+            $data = $this->getPoll("https://pulse.projektai.nfqakademija.lt/api/poll/$id");
+            $index = 0;
+            foreach ($data as $question) {
+                $question = $this->handleData($data, $index);
+                $index++;
+                $bot->typesAndWaits(1);
+                $bot->ask($question, function (Answer $response) {
+//                    if ($response->isInteractiveMessageReply()) {
+//                        $selectedValue = $response->getValue(); // will be either 'yes' or 'no'
+//                        $selectedText = $response->getText(); // will be either 'Of course' or 'Hell no!'
+//                        var_dump($selectedText);
+//                        $this->firstname = $response->getText();
+//                    }
+                });
+            }
+        });
     }
 
     public function sendToUsers(array $users, string $base, array $options)
@@ -40,8 +120,75 @@ class SlackBot
             $this->botman->say($question, $user);
         }
     }
-}
 
-// Example
-//$bot = new SlackBot("000000000000000000");
-//$bot->sendToUsers(['UserId'], "How Are you", ['Yes', 'No']);
+    public function sendMessageWithUsersHooks()
+    {
+        $this->botman->hears('hook', function ($bot) {
+            $urls = ['https://hooks.slack.com/services/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'];
+
+            $channel = '#general';
+            $bot_name = 'Webhook';
+            $icon = ':alien:';
+            $message = 'Your message';
+            $attachments = array([
+                "blocks" => [
+                    [
+                        "type" => "section",
+                        "text" => [
+                            "type" => "mrkdwn",
+                            "text" => "Kaip siandien jauciates?"
+                        ],
+                        "accessory" => [
+                            "type" => "static_select",
+                            "placeholder" => [
+                                "type" => "plain_text",
+                                "text" => "Select an item",
+                                "emoji" => true
+                            ],
+                            "options" => [
+                                [
+                                    "text" => [
+                                        "type" => "plain_text",
+                                        "text" => "Puikiai",
+                                        "emoji" => true
+                                    ],
+                                    "value" => "value-2"
+                                ],
+                                [
+                                    "text" => [
+                                        "type" => "plain_text",
+                                        "text" => "Gerai",
+                                        "emoji" => true
+                                    ],
+                                    "value" => "value-2"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+
+            ]);
+            $data = array(
+                'channel' => $channel,
+                'username' => $bot_name,
+                'text' => $attachments,
+                'icon_emoji' => $icon,
+                'attachments' => $attachments
+            );
+            foreach ($urls as $url) {
+                $data_string = json_encode($data);
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($data_string)));
+                //Execute CURL
+                $result = curl_exec($ch);
+            }
+
+            return $result;
+        });
+    }
+}
