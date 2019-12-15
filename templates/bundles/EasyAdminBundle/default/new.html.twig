@@ -1,0 +1,321 @@
+{% form_theme form with easyadmin_config('design.form_theme') only %}
+{% set _entity_config = easyadmin_entity(app.request.query.get('entity')) %}
+{% trans_default_domain _entity_config.translation_domain %}
+{% set _trans_parameters = { '%entity_name%': _entity_config.name|trans, '%entity_label%': _entity_config.label|trans } %}
+{% extends _entity_config.templates.layout %}
+{% block body_id 'easyadmin-new-' ~ _entity_config.name %}
+{% block body_class 'new new-' ~ _entity_config.name|lower %}
+{% block content_title %}
+    {% apply spaceless %}
+        {% set _default_title = 'new.page_title'|trans(_trans_parameters, 'EasyAdminBundle') %}
+        {{ _entity_config.new.title is defined ? _entity_config.new.title|trans(_trans_parameters) : _default_title }}
+    {% endapply %}
+{% endblock %}
+{% block content_footer_wrapper '' %}
+{% block main %}
+    {% block entity_form %}
+        {#Custom poll pradzia#}
+        {% if _entity_config.name =="Poll" %}
+            {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
+            <div class="card">
+                <div class="card-header">
+                    <b>{{ form_row(form.name) }}</b>
+                    <b style="display: none">{{ form_row(form.questions) }}</b>
+                </div>
+            </div>
+            <div id="questions" style="margin-top: 20px;">
+                {% if form.questions|length > 0 %}
+                    {% for question in form.questions
+                        |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber()) %}
+                        <div class="card question"
+                             id="question{{ question.vars.value.id }}"
+                             data-question-id="{{ question.vars.value.id }}"
+                             style="margin-bottom: 20px;"
+                        >
+                            <div class="card-header">
+                                <b>{{ form_row(question.question) }}</b>
+                                <button class="btn btn-danger delete-question"
+                                        data-question-id="{{ question.vars.value.id }}"
+                                        data-question-number="{{ question.vars.value.getQuestionNumber() }}"
+                                        id="deleteQuestion{{ question.vars.value.id }}"
+                                >
+                                    Delete question
+                                </button>
+                                <button class="btn btn-primary add-question"
+                                        data-poll-id="{{ form.vars.value.id }}"
+                                        data-question-id="{{ question.vars.value.id }}"
+                                        data-question-number="{{ question.vars.value.getQuestionNumber() }}"
+                                        id="addQuestion{{ question.vars.value.id }}"
+                                >
+                                    Add question
+                                </button>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <div class="row options" id="optionsQuestion{{ question.vars.value.id }}">
+                                    {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
+                                        <div class="col align-self-center" id="option{{ option.vars.value.id }}">
+                                            <li class="list-group-item">
+                                                <b>{{ form_row(option.value) }}</b>
+                                                <button class="btn btn-danger delete-option"
+                                                        data-option-id="{{ option.vars.value.id }}"
+                                                        id="deleteOption{{ option.vars.value.id }}"
+                                                >
+                                                    Delete option
+                                                </button>
+                                            </li>
+                                        </div>
+                                    {% endfor %}
+                                    <div class="col align-self-center"
+                                         id="addOptionQuestion{{ question.vars.value.id }}">
+                                        <li class="list-group-item">
+                                            <button class="btn btn-primary add-option"
+                                                    data-question-id="{{ question.vars.value.id }}"
+                                                    id="addOptionToQuestion{{ question.vars.value.id }}"
+                                            >
+                                                Add option
+                                            </button>
+                                        </li>
+                                    </div>
+                                </div>
+                            </ul>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-primary add-question"
+                                    data-poll-id="{{ form.vars.value.id }}"
+                                    data-question-id="-1"
+                                    data-question-number="-1"
+                                    id="addQuestion-1"
+                            >
+                                Add question
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            {{ form_end(form) }}
+            {#Custom js pradzia#}
+            {% block javascripts %}
+                <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+                        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+                        crossorigin="anonymous"
+                ></script>
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+                        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+                        crossorigin="anonymous"
+                ></script>
+                <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+                        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+                        crossorigin="anonymous"
+                ></script>
+                <script>
+                    // Add question
+                    $(function () {
+                        $(document).on('click', '.btn.btn-primary.add-question', function (e) {
+                            var addQuestionButton = $('#' + e.target.id);
+                            var pollId = addQuestionButton.attr('data-poll-id');
+                            var questionId = addQuestionButton.attr('data-question-id');
+                            e.preventDefault();
+                            $.ajax({
+                                type: 'post',
+                                url: '/poll/' + pollId + '/new/question/' + questionId,
+                                success: function (data) {
+                                    var questionCardClass = '.card.question';
+                                    var newIds = $(data).find(questionCardClass).map(function () {
+                                        return this.id;
+                                    }).get();
+                                    if ($(questionCardClass)[0]) {
+                                        var oldIds = $(questionCardClass).map(function () {
+                                            return this.id;
+                                        }).get();
+                                        var insertAfterLastQuestion = true;
+                                        var insertIndex = Object.keys(oldIds).length - 1;
+                                        $.each(oldIds, function (key, value) {
+                                            if (value !== newIds[key]) {
+                                                insertAfterLastQuestion = false;
+                                                insertIndex = parseInt(key);
+                                                var questionCardId = $('#' + value).attr('data-question-id');
+                                                var addButton = $('#' + 'addQuestion' + questionCardId);
+                                                var addButtonQuestionNumber = parseInt(addButton.attr('data-question-number'));
+                                                addButton.attr('data-question-number', addButtonQuestionNumber + 1);
+                                                var delButton = $('#' + 'deleteQuestion' + questionCardId);
+                                                var delButtonQuestionNumber = parseInt(delButton.attr('data-question-number'));
+                                                delButton.attr('data-question-number', delButtonQuestionNumber + 1);
+                                            }
+                                        });
+                                        var question = $('#' + oldIds[insertIndex]);
+                                        var newQuestion = $(data).find('#' + newIds[insertIndex]);
+                                        if (insertAfterLastQuestion) {
+                                            newQuestion = $(data).find('#' + newIds[insertIndex + 1]);
+                                            $(newQuestion.prop('outerHTML')).insertAfter(question);
+                                        } else if (insertIndex > 0) {
+                                            question = $('#' + oldIds[insertIndex - 1]);
+                                            $(newQuestion.prop('outerHTML')).insertAfter(question);
+                                        } else {
+                                            $(newQuestion.prop('outerHTML')).insertBefore(question);
+                                        }
+                                    } else {
+                                        $('#questions').load(location.href + ' #questions>*', '');
+                                    }
+                                }
+                            });
+                        });
+                    });
+                    // Delete question
+                    $(function () {
+                        $(document).on('click', '.btn.btn-danger.delete-question', function (e) {
+                            var deleteQuestionButton = $('#' + e.target.id);
+                            var questionId = deleteQuestionButton.attr('data-question-id');
+                            var questionNumber = parseInt(deleteQuestionButton.attr('data-question-number'));
+                            e.preventDefault();
+                            if (confirm('Are you sure?')) {
+                                $.ajax({
+                                    type: 'post',
+                                    url: '/question/delete/' + questionId,
+                                    success: function () {
+                                        var questionCardClass = '.card.question';
+                                        var questionIds = $(questionCardClass).map(function () {
+                                            return this.id;
+                                        }).get();
+                                        var questionCount = Object.keys(questionIds).length;
+                                        if (questionCount !== questionNumber) {
+                                            $.each(questionIds, function (key, value) {
+                                                var questionCardId = $('#' + value).attr('data-question-id');
+                                                var addButton = $('#' + 'addQuestion' + questionCardId);
+                                                var addButtonQuestionNumber = parseInt(addButton.attr('data-question-number'));
+                                                var delButton = $('#' + 'deleteQuestion' + questionCardId);
+                                                var delButtonQuestionNumber = parseInt(delButton.attr('data-question-number'));
+                                                if (addButtonQuestionNumber > questionNumber) {
+                                                    addButton.attr('data-question-number', addButtonQuestionNumber - 1);
+                                                    delButton.attr('data-question-number', delButtonQuestionNumber - 1);
+                                                }
+                                            });
+                                        }
+                                        $('#question' + questionId).remove();
+                                        if (questionCount === 1) {
+                                            $('#questions').load(location.href + ' #questions>*', '');
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    // Add option
+                    $(function () {
+                        $(document).on('click', '.btn.btn-primary.add-option', function (e) {
+                            var questionId = $('#' + e.target.id).attr('data-question-id');
+                            e.preventDefault();
+                            $.ajax({
+                                type: 'post',
+                                url: '/question/' + questionId + '/new/option',
+                                success: function (data) {
+                                    var options = $(data).find('#optionsQuestion' + questionId).children();
+                                    var newOption = $(options[options.length - 2]);
+                                    $(newOption.prop('outerHTML')).insertBefore($('#addOptionQuestion' + questionId));
+                                }
+                            });
+                        });
+                    });
+                    // Delete option
+                    $(function () {
+                        $(document).on('click', '.btn.btn-danger.delete-option', function (e) {
+                            var optionId = $('#' + e.target.id).attr('data-option-id');
+                            e.preventDefault();
+                            if (confirm('Are you sure?')) {
+                                $.ajax({
+                                    type: 'post',
+                                    url: '/option/delete/' + optionId,
+                                    success: function () {
+                                        $('#option' + optionId).remove();
+                                    }
+                                });
+                            }
+                        });
+                    });
+                </script>
+                {#Custom js pabaiga#}
+            {% endblock %}
+        {% else %}
+            {{ form(form) }}
+        {% endif %}
+    {% endblock entity_form %}
+    {#Custom poll pabaiga#}
+{% endblock %}
+{% block body_javascript %}
+    {{ parent() }}
+    <script type="text/javascript">
+        $(function () {
+            $('.new-form').areYouSure({'message': '{{ 'form.are_you_sure'|trans({}, 'EasyAdminBundle')|e('js') }}'});
+            const entityForm = document.querySelector('form.new-form');
+            const formSubmitButton = entityForm.querySelector('button[type="submit"]');
+            const inputFieldsSelector = 'input,select,textarea';
+            // Adding visual feedback for invalid fields: any ".form-group" with invalid fields
+            // receives "has-error" class. The class is removed on click on the ".form-group"
+            // itself to support custom/complex fields.
+            formSubmitButton.addEventListener('click', function () {
+                entityForm.querySelectorAll(inputFieldsSelector).forEach(function (input) {
+                    if (!input.validity.valid) {
+                        const formGroup = input.closest('div.form-group');
+                        formGroup.classList.add('has-error');
+                        formGroup.addEventListener('click', function onFormGroupClick() {
+                            formGroup.classList.remove('has-error');
+                            formGroup.removeEventListener('click', onFormGroupClick);
+                        });
+                    }
+                });
+            });
+            // forms with tabs require some special treatment for errors. The problem
+            // is when the field with errors is included in a tab not currently visible.
+            // Browser shows this error "An invalid form control with name='...' is not focusable."
+            // So, the user clicks on Submit button, the form is not submitted and the error
+            // is not displayed. This JavaScript code ensures that each tab shows a badge with
+            // the number of errors in it.
+            formSubmitButton.addEventListener('click', function () {
+                const formTabPanes = entityForm.querySelectorAll('.tab-pane');
+                if (0 === formTabPanes.length) {
+                    return;
+                }
+                let firstNavTabItemWithError = null;
+                formTabPanes.forEach(function (tabPane) {
+                    let tabPaneNumErrors = 0;
+                    tabPane.querySelectorAll(inputFieldsSelector).forEach(function (input) {
+                        if (!input.validity.valid) {
+                            tabPaneNumErrors++;
+                        }
+                    });
+                    let navTabItem = entityForm.querySelector('.nav-item a[href="#' + tabPane.id + '"]');
+                    let existingErrorBadge = navTabItem.querySelector('span.badge.badge-danger');
+                    if (null !== existingErrorBadge) {
+                        navTabItem.removeChild(existingErrorBadge);
+                    }
+                    if (tabPaneNumErrors > 0) {
+                        let newErrorBadge = document.createElement('span');
+                        newErrorBadge.classList.add('badge', 'badge-danger');
+                        newErrorBadge.title = 'form.tab.error_badge_title';
+                        newErrorBadge.textContent = tabPaneNumErrors;
+                        navTabItem.appendChild(newErrorBadge);
+                        if (null === firstNavTabItemWithError) {
+                            firstNavTabItemWithError = navTabItem;
+                        }
+                    }
+                });
+                if (firstNavTabItemWithError) {
+                    firstNavTabItemWithError.click();
+                }
+            });
+            // prevent multiple form submissions to avoid creating duplicated entities
+            entityForm.addEventListener('submit', function () {
+                // this timeout is needed to include the disabled button into the submitted form
+                setTimeout(function () {
+                    const submitButtons = entityForm.querySelectorAll('[type="submit"]');
+                    submitButtons.forEach(function (button) {
+                        button.setAttribute('disabled', 'disabled');
+                    });
+                }, 1);
+            }, false);
+        });
+    </script>
+    {{ include('@EasyAdmin/default/includes/_select2_widget.html.twig') }}
+{% endblock %}
