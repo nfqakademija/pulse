@@ -42,4 +42,5 @@ security:
          - { path: ^/graph/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
          - { path: ^/ask_poll/, roles: [ROLE_ADMIN, ROLE_SUPER_ADMIN] }
          - { path: ^/api/*, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+         - { path: ^/bot/settings, roles: ROLE_SUPER_ADMIN }
          - { path: ^/, roles: ROLE_SUPER_ADMIN }

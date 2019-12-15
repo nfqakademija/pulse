@@ -3,17 +3,6 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block body %}
-    {% if is_granted("ROLE_SUPER_ADMIN") %}
-        <div class="card" style="margin-top: 20px;">
-            <div class="card-header">
-                <b>
-                    {{ form_start(form) }}
-                    {{ form_widget(form) }}
-                    {{ form_end(form) }}
-                </b>
-            </div>
-        </div>
-    {% endif %}
     <div class="btn-group" style="margin-top: 20px;">
         <button type="button"
                 class="btn btn-secondary dropdown-toggle"

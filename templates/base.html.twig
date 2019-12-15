@@ -14,23 +14,26 @@
         <!-- Navigation bar -->
         <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
             <!-- Title -->
-            <a class="navbar-brand" href="/admin">NFQ Pulse</a>
+            <a class="navbar-brand" href="{{ path('easyadmin') }}">NFQ Pulse</a>
             <!-- Links -->
             <div class="navbar-nav">
-                <!-- User import page link -->
+                <!-- Super admin links -->
                 {% if is_granted("ROLE_SUPER_ADMIN") %}
-                    <a class="nav-item nav-link" href="/">User Import</a>
+                    <!-- User import page link -->
+                    <a class="nav-item nav-link" href="{{ path('home') }}">User Import</a>
+                    <!-- Bot settings link -->
+                    <a class="nav-item nav-link" href="{{ path('bot_settings') }}">Bot Settings</a>
                 {% endif %}
                 <!-- Admin links -->
                 {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SUPER_ADMIN") %}
                     <!-- Admin panel link -->
-                    <a class="nav-item nav-link" href="/admin">Admin Panel</a>
+                    <a class="nav-item nav-link" href="{{ path('easyadmin') }}">Admin Panel</a>
                     <!-- Admin polls link -->
-                    <a class="nav-item nav-link" href="/polls/{{ app.user.id }}">Polls</a>
+                    <a class="nav-item nav-link" href="{{ path('polls', {'adminId': app.user.id}) }}">Polls</a>
                 {% endif %}
                 <!-- Logout link -->
                 {% if app.user %}
-                    <a class="nav-item nav-link" href="/logout">Logout ({{ app.user.email }})</a>
+                    <a class="nav-item nav-link" href="{{ path('app_logout') }}">Logout ({{ app.user.email }})</a>
                 {% endif %}
             </div>
         </nav>
