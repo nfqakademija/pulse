@@ -295,9 +295,8 @@ class HomeController extends AbstractController
                 'label' => 'WEB_HOOK',
                 'attr' => [
                     'class' => 'form-control',
-                    'value' => $botSettings['webHook'],
+                    'value' => urldecode($botSettings['webHook']),
                     'style' => 'margin-bottom: 20px;',
-                    'pattern' => '[a-zA-Z0-9_-]+',
                 ],
             ])
             ->add('save', SubmitType::class, [
@@ -610,11 +609,7 @@ class HomeController extends AbstractController
 
                 $replaced = true;
             } elseif (stristr($line, 'WEB_HOOK')) {
-                if (preg_match('/^[a-zA-Z0-9_-]+$/', $newWebHook)) {
-                    $line = 'WEB_HOOK="' . $newWebHook . '"' . "\n";
-                } else {
-                    $line = 'WEB_HOOK="invalid"' . "\n";
-                }
+                $line = 'WEB_HOOK="' . urlencode($newWebHook) . '"' . "\n";
 
                 $replaced = true;
             }

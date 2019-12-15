@@ -2,8 +2,6 @@
 
 namespace App\Bot;
 
-// require '../../vendor/autoload.php';
-
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Messages\Incoming\Answer;

@@ -6,7 +6,6 @@ easy_admin:
         children:
           - {entity: Question, label: "List", icon: "th-list" }
           - {entity: Question, label: "Add", icon: "plus", params: {action: "new"}}
-          - {entity: Question, label: "Add to poll", icon: "plus", params: {action: "comming soon"}}
       - label: "Responder"
         children:
           - {entity: Responder, label: "List", icon: "th-list" }
