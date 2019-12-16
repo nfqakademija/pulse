@@ -31,8 +31,7 @@ class NewPollType extends AbstractType
                 'attr' => [
                     'class' => 'btn btn-primary btn-block',
                 ],
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)
