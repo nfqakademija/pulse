@@ -19,6 +19,8 @@
             <div class="navbar-nav">
                 <!-- Super admin links -->
                 {% if is_granted("ROLE_SUPER_ADMIN") %}
+                    <!-- About page link -->
+                    <a class="nav-item nav-link" href="{{ path('about') }}">About the project</a>
                     <!-- User import page link -->
                     <a class="nav-item nav-link" href="{{ path('responder_import') }}">User Import</a>
                     <!-- Bot settings link -->

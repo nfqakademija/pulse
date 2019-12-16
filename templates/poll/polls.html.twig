@@ -120,6 +120,14 @@
                     <div id="sidebar-resizer-handler" class="resizer-handler resizer-handler-left"></div>
                     {% block content %}
                         <div class="content">
+                            <section class="content-header ">
+                                <div class="d-flex flex-row justify-content-between align-content-center w-100">
+                                    <div class="content-header-title">
+                                        <h1 class="title"> Create Poll</h1>
+                                    </div>
+                                    <div class="global-actions"></div>
+                                </div>
+                            </section>
                             <section id="main" class="content-body h-100">
                                 {% block main %}
                                     <div class="btn-group" style="margin: 20px 20px 0px 20px;">
@@ -145,7 +153,7 @@
                                             {% endif %}
                                         </div>
                                         <a class="btn btn-primary"
-                                           href="{{ path('add_poll', {'adminId': app.user.id}) }}"
+                                           href="{{ path('easyadmin_add_poll', {'adminId': app.user.id}) }}"
                                            role="button"
                                         >
                                             Create Poll
@@ -166,7 +174,7 @@
                                             {% if surveys %}
                                                 {% for survey in surveys %}
                                                     <a class="dropdown-item"
-                                                       href="{{ path('easyadmin', {'entity': 'Survey', 'action': 'graph', 'id': survey.id}) }}"
+                                                       href="{{ path('graph', {'surveyId': survey.id}) }}"
                                                     >
                                                         {{ survey.name ~ ' (' ~ survey.datetime|date('Y-m-d') ~ ')' }}
                                                     </a>

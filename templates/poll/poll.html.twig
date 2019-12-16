@@ -120,30 +120,43 @@
                     <div id="sidebar-resizer-handler" class="resizer-handler resizer-handler-left"></div>
                     {% block content %}
                         <div class="content">
+                            <div class="content">
+                                <section class="content-header ">
+                                    <div class="d-flex flex-row justify-content-between align-content-center w-100">
+                                        <div class="content-header-title">
+                                            <h1 class="title">    Create Poll</h1>
+                                        </div>
+                                        <div class="global-actions"></div>
+                                    </div>
+                                </section>
+                                <section id="main" class="content-body">
                             <section id="main" class="content-body">
                                 {% block main %}
+
                                     {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
-                                    <div class="card">
-                                        <div class="card-header">
+                                    <div class="">
+                                        <div class="">
                                             <b>{{ form_row(form.name) }}</b>
                                         </div>
                                     </div>
-                                    <div id="questions" style="margin-top: 20px;">
+                                    <div id="questions" style="margin-top: 25px;">
                                         {% if form.questions|length > 0 %}
                                             {% for question in form.questions
                                                 |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber())
                                             %}
-                                                <div class="card question"
+                                                <div class="question list-group-item"
                                                      id="question{{ question.vars.value.id }}"
                                                      data-question-id="{{ question.vars.value.id }}"
                                                      style="margin-bottom: 20px;"
                                                 >
-                                                    <div class="card-header">
+                                                    <div>
                                                         <b>{{ form_row(question.question) }}</b>
                                                         <button class="btn btn-danger delete-question"
                                                                 data-question-id="{{ question.vars.value.id }}"
                                                                 data-question-number="{{ question.vars.value.getQuestionNumber() }}"
                                                                 id="deleteQuestion{{ question.vars.value.id }}"
+                                                                style="margin-bottom: 15px;"
+
                                                         >
                                                             Delete question
                                                         </button>
@@ -152,15 +165,16 @@
                                                                 data-question-id="{{ question.vars.value.id }}"
                                                                 data-question-number="{{ question.vars.value.getQuestionNumber() }}"
                                                                 id="addQuestion{{ question.vars.value.id }}"
+                                                                style="margin-bottom: 15px;"
                                                         >
                                                             Add question
                                                         </button>
                                                     </div>
-                                                    <ul class="list-group list-group-flush">
+                                                    <div class="list-group list-group-flush">
                                                         <div class="row options" id="optionsQuestion{{ question.vars.value.id }}">
                                                             {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
-                                                                <div class="col align-self-center" id="option{{ option.vars.value.id }}">
-                                                                    <li class="list-group-item">
+                                                                <div class="col align-self-center" style="padding-bottom: 15px;" id="option{{ option.vars.value.id }}">
+                                                                    <div class="">
                                                                         <b>{{ form_row(option.value) }}</b>
                                                                         <button class="btn btn-danger delete-option"
                                                                                 data-option-id="{{ option.vars.value.id }}"
@@ -168,26 +182,26 @@
                                                                         >
                                                                             Delete option
                                                                         </button>
-                                                                    </li>
+                                                                    </div>
                                                                 </div>
                                                             {% endfor %}
-                                                            <div class="col align-self-center" id="addOptionQuestion{{ question.vars.value.id }}">
-                                                                <li class="list-group-item">
+                                                            <div class="col align-self-center" style="margin-bottom: 30px;" id="addOptionQuestion{{ question.vars.value.id }}">
+                                                                <div class="">
                                                                     <button class="btn btn-primary add-option"
                                                                             data-question-id="{{ question.vars.value.id }}"
                                                                             id="addOptionToQuestion{{ question.vars.value.id }}"
                                                                     >
                                                                         Add option
                                                                     </button>
-                                                                </li>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </ul>
+                                                    </div>
                                                 </div>
                                             {% endfor %}
                                         {% else %}
-                                            <div class="card" style="margin-bottom: 20px;">
-                                                <div class="card-header">
+                                            <div class="" style="margin-bottom: 20px;">
+                                                <div class="">
                                                     <button class="btn btn-primary add-question"
                                                             data-poll-id="{{ form.vars.value.id }}"
                                                             data-question-id="-1"
@@ -200,7 +214,15 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                    {{ form_end(form) }}
+
+
+
+                                    <section class="content-footer">
+                                        <div class="form-actions">
+                                            {{ form_end(form) }}
+                                            <a class=" btn btn-link pr-0 action-list" title="" href="/admin/?entity=Poll&amp;action=list" target="_self">Back to listing</a>
+                                        </div>
+                                    </section>
                                 {% endblock %}
                             </section>
                         </div>

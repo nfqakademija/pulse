@@ -16,7 +16,7 @@ class NewPollType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Poll',
+                'label' => 'Poll name',
                 'attr' => [
                     'class' => 'form-control',
                 ],

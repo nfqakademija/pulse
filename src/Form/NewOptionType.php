@@ -14,7 +14,7 @@ class NewOptionType extends AbstractType
     {
         $builder
             ->add('value', TextType::class, [
-                'label' => 'Option',
+                'label' => 'Option title',
                 'attr' => [
                     'class' => 'form-control',
                 ],

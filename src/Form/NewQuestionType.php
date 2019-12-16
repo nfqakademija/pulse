@@ -16,7 +16,7 @@ class NewQuestionType extends AbstractType
     {
         $builder
             ->add('question', TextareaType::class, [
-                'label' => 'Question',
+                'label' => 'Whats your question?',
                 'attr' => [
                     'class' => 'form-control',
                 ],
@@ -25,6 +25,9 @@ class NewQuestionType extends AbstractType
                 'entry_type' => NewOptionType::class,
                 'label' => false,
                 'entry_options' => ['label' => false],
+                'attr' => [
+                    'class' => 'form-control',
+                ],
             ])
         ;
     }
