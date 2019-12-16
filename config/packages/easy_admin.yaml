@@ -17,6 +17,7 @@ easy_admin:
       - label: "Poll"
         children:
           - {entity: Poll, label: "List", icon: "th-list" }
+          - {entity: Poll, label: "My Polls", icon: "th-list", params: {action: "myList"}}
           - {entity: Poll, label: "Add", icon: "plus", params: {action: "new"}}
           - {entity: Poll, label: "Results", icon: "plus", params: {action: "show"}}
       - label: "Option"
@@ -34,83 +35,21 @@ easy_admin:
     name_property_path: "email"
     display_name: true
   entities:
-
-
     # List the entity class name you want to manage
     Responder:
       class: App\Entity\Responder
-      label: "Responder"
-      form:
-        fields:
-          - slackId
-          - email
-          - slackUsername
-          - department
-          - jobTitle
-          - teamLead
-          - fullName
-          - site
-          - team
-      list:
-        fields:
-          - slackId
-          - email
-          - jobTitle
-          - fullName
-        actions: ['show', "edit", "delete", { name: 'asd', template: 'question/custom.html.twig' }]
-        batch_actions: ["delete"]
-        filters: ["teamLead"]
-      show:
-        fields:
-          - slackId
-          - email
-          - slackUsername
-          - department
-          - jobTitle
-          - teamLead
-          - fullName
-          - site
-          - team
-
     Question:
       class: App\Entity\Question
-      label: "Question"
-      form:
-        fields:
-          - { property: 'questionNumber',  help: 'Question number in a poll row' }
-          - question
-          - poll
-          - options
-
-      list:
-        fields:
-          - id
-          - question
-          - poll
-          - answers
-        actions: ['show', "edit", "delete", { name: 'asd', template: 'question/custom.html.twig' }]
-        batch_actions: ["delete"]
-        filters: ["poll"]
-      show:
-        fields:
-          - id
-          - question
-          - questionNumber
-          - poll
-          - options
     Survey:
       class: App\Entity\Survey
     Poll:
       class: App\Entity\Poll
+      controller: App\Controller\PollEasyAdminController
       list:
         actions:
           - { name: 'send_team', type: 'route' }
           - { name: 'send_workspace', type: 'route' }
-      form:
-        fields:
-          - name
-          - questions
-
+          - 'formEdit'
     User:
       class: App\Entity\User
     Answer:

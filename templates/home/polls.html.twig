@@ -15,13 +15,17 @@
         <div class="dropdown-menu">
             {% if polls %}
                 {% for poll in polls %}
-                    <a class="dropdown-item" href="/poll/{{ poll.id }}">{{ poll.name }}</a>
+                    <a class="dropdown-item" href="{{ path('show_poll', {'id': poll.id}) }}">
+                        {{ poll.name }}
+                    </a>
                 {% endfor %}
             {% else %}
                 <a class="dropdown-item" href="#">No polls to display!</a>
             {% endif %}
         </div>
-        <a class="btn btn-primary" href="/poll/new/{{ app.user.id }}" role="button">Create Poll</a>
+        <a class="btn btn-primary" href="{{ path('add_poll', {'adminId': app.user.id}) }}" role="button">
+            Create Poll
+        </a>
     </div>
     <div class="dropdown show" style="margin-top: 20px;">
         <a class="btn btn-secondary dropdown-toggle"
@@ -37,7 +41,7 @@
         <div class="dropdown-menu" aria-labelledby="dropdownSurveyMenuLink">
             {% if surveys %}
                 {% for survey in surveys %}
-                    <a class="dropdown-item" href="/graph/{{ survey.id }}">
+                    <a class="dropdown-item" href="{{ path('graph', {'surveyId': survey.id}) }}">
                         {{ survey.name ~ ' (' ~ survey.datetime|date('Y-m-d') ~ ')' }}
                     </a>
                 {% endfor %}
