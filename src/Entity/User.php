@@ -43,13 +43,13 @@ class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Responder", mappedBy="teamLead")
      */
-    private $responder;
+    private $responders;
 
 
     public function __construct()
     {
         $this->polls = new ArrayCollection();
-        $this->responder = new ArrayCollection();
+        $this->responders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -169,15 +169,15 @@ class User implements UserInterface
     /**
      * @return Collection|Responder[]
      */
-    public function getResponder(): Collection
+    public function getResponders(): Collection
     {
-        return $this->responder;
+        return $this->responders;
     }
 
     public function addResponder(Responder $responder): self
     {
-        if (!$this->responder->contains($responder)) {
-            $this->responder[] = $responder;
+        if (!$this->responders->contains($responder)) {
+            $this->responders[] = $responder;
             $responder->setTeamLead($this);
         }
 
@@ -186,8 +186,8 @@ class User implements UserInterface
 
     public function removeResponder(Responder $responder): self
     {
-        if ($this->responder->contains($responder)) {
-            $this->responder->removeElement($responder);
+        if ($this->responders->contains($responder)) {
+            $this->responders->removeElement($responder);
             // set the owning side to null (unless already changed)
             if ($responder->getTeamLead() === $this) {
                 $responder->setTeamLead(null);

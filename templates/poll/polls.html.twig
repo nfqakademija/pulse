@@ -145,7 +145,7 @@
                                             {% endif %}
                                         </div>
                                         <a class="btn btn-primary"
-                                           href="{{ path('easyadmin_add_poll', {'adminId': app.user.id}) }}"
+                                           href="{{ path('add_poll', {'adminId': app.user.id}) }}"
                                            role="button"
                                         >
                                             Create Poll
@@ -166,7 +166,7 @@
                                             {% if surveys %}
                                                 {% for survey in surveys %}
                                                     <a class="dropdown-item"
-                                                       href="{{ path('graph', {'surveyId': survey.id}) }}"
+                                                       href="{{ path('easyadmin', {'entity': 'Survey', 'action': 'graph', 'id': survey.id}) }}"
                                                     >
                                                         {{ survey.name ~ ' (' ~ survey.datetime|date('Y-m-d') ~ ')' }}
                                                     </a>

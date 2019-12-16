@@ -2,6 +2,9 @@ easy_admin:
   design:
     menu:
       - {label: "Entities"}
+      - label: "SlackBot"
+        children:
+          - {label: "Settings", icon: "cog", route: "bot_settings"}
       - label: "Questions"
         children:
           - {entity: Question, label: "List", icon: "th-list" }
@@ -10,6 +13,7 @@ easy_admin:
         children:
           - {entity: Responder, label: "List", icon: "th-list" }
           - {entity: Responder, label: "Add", icon: "plus", params: {action: "new"}}
+          - {label: "Import", icon: "file-import", route: "responder_import", permission: 'ROLE_SUPER_ADMIN'}
       - label: "Survey"
         children:
           - {entity: Survey, label: "List", icon: "th-list" }
@@ -19,7 +23,6 @@ easy_admin:
           - {entity: Poll, label: "List", icon: "th-list" }
           - {entity: Poll, label: "My Polls", icon: "th-list", params: {action: "myList"}}
           - {entity: Poll, label: "Add", icon: "plus", params: {action: "new"}}
-          - {entity: Poll, label: "Results", icon: "plus", params: {action: "show"}}
       - label: "Option"
         children:
           - {entity: Option, label: "List", icon: "th-list" }
@@ -38,21 +41,131 @@ easy_admin:
     # List the entity class name you want to manage
     Responder:
       class: App\Entity\Responder
+      label: "Responder"
+      form:
+        fields:
+          - slackId
+          - email
+          - slackUsername
+          - department
+          - jobTitle
+          - teamLead
+          - fullName
+          - site
+          - team
+          - answers
+      list:
+        fields:
+          - slackId
+          - email
+          - slackUsername
+          - department
+          - jobTitle
+          - teamLead
+          - fullName
+          - site
+          - team
+          - answers
     Question:
       class: App\Entity\Question
+      label: "Question"
+      form:
+        fields:
+          - questionNumber
+          - question
+          - poll
+          - options
+      list:
+        fields:
+          - id
+          - questionNumber
+          - question
+          - poll
+          - options
     Survey:
       class: App\Entity\Survey
+      label: "Survey"
+      controller: App\Controller\SurveyController
+      form:
+        fields:
+          - name
+          - datetime
+          - poll
+          - answers
+      list:
+        fields:
+          - id
+          - name
+          - datetime
+          - poll
+          - answers
+        actions:
+          - 'graph'
     Poll:
       class: App\Entity\Poll
-      controller: App\Controller\PollEasyAdminController
+      label: "Poll"
+      controller: App\Controller\PollController
+      form:
+        fields:
+          - name
+          - user
+          - questions
+          - surveys
       list:
+        fields:
+          - id
+          - name
+          - user
+          - questions
+          - surveys
         actions:
           - { name: 'send_team', type: 'route' }
           - { name: 'send_workspace', type: 'route' }
           - 'formEdit'
     User:
       class: App\Entity\User
+      label: "User"
+      form:
+        fields:
+          - email
+          - password
+          - polls
+          - responders
+      list:
+        fields:
+          - id
+          - email
+          - roles
+          - password
+          - polls
+          - responders
     Answer:
       class: App\Entity\Answer
+      label: "Answer"
+      form:
+        fields:
+          - value
+          - answerOption
+          - responder
+          - survey
+      list:
+        fields:
+          - id
+          - value
+          - answerOption
+          - responder
+          - survey
     Option:
       class: App\Entity\Option
+      label: "Option"
+      form:
+        fields:
+          - value
+          - question
+          - answers
+      list:
+        fields:
+          - id
+          - value
+          - question
+          - answers

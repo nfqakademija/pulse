@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class BotSettingsController extends AbstractController
 {
     /**
-     * @Route("/bot/settings", name="bot_settings", methods={"GET", "POST"})
+     * @Route("/superadmin/bot/settings", name="bot_settings", methods={"GET", "POST"})
      */
     public function botSettings(Request $request, KernelInterface $kernelInterface)
     {
@@ -64,7 +64,7 @@ class BotSettingsController extends AbstractController
 
             $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret, $newWebHook);
 
-            return $this->redirectToRoute('bot_settings');
+            return $this->redirectToRoute('easyadmin');
         }
 
         return $this->render('bot/settings.html.twig', [

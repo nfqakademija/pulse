@@ -2,93 +2,213 @@
 
 namespace App\Controller;
 
+use App\Entity\Option;
 use App\Entity\Poll;
-use App\Form\PollType;
-use App\Repository\PollRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Question;
+use App\Entity\Survey;
+use App\Entity\User;
+use App\Form\NewPollType;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/poll")
- */
-class PollController extends AbstractController
+class PollController extends EasyAdminController
 {
-    /**
-     * @Route("/", name="poll_index", methods={"GET"})
-     */
-    public function index(PollRepository $pollRepository): Response
+    public function myListPollAction()
     {
-        return $this->render('poll/index.html.twig', [
-            'polls' => $pollRepository->findAll(),
+        $polls = $this->getDoctrine()->getRepository(Poll::class)
+            ->findByUser($this->getUser()->getId());
+
+        $surveys = $this->getDoctrine()->getRepository(Survey::class)
+            ->findByUser($this->getUser()->getId());
+
+        return $this->render('poll/polls.html.twig', [
+            'title' => 'Polls',
+            'polls' => $polls,
+            'surveys' => $surveys,
+        ]);
+    }
+
+    public function formEditPollAction()
+    {
+        $form = $this->createForm(NewPollType::class, $this->request->attributes->get('easyadmin')['item']);
+
+        $form->handleRequest($this->request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->em->flush();
+
+            return $this->redirectToRoute('easyadmin', [
+                'entity' => 'Poll',
+                'action' => 'myList',
+            ]);
+        }
+
+        return $this->render('poll/poll.html.twig', [
+            'title' => 'Poll',
+            'form' => $form->createView(),
         ]);
     }
 
     /**
-     * @Route("/new", name="poll_new", methods={"GET","POST"})
+     * @Route("/easyadmin/poll/new/{adminId}", name="easyadmin_add_poll", methods={"GET", "POST"})
      */
-    public function new(Request $request): Response
+    public function easyAdminAddPoll($adminId)
     {
+        $admin = $this->getDoctrine()->getRepository(User::class)->find($adminId);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
         $poll = new Poll();
-        $form = $this->createForm(PollType::class, $poll);
-        $form->handleRequest($request);
+        $poll->setName('New Poll');
+        $poll->setUser($admin);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($poll);
-            $entityManager->flush();
+        $entityManager->persist($poll);
+        $entityManager->flush();
 
-            return $this->redirectToRoute('poll_index');
-        }
-
-        return $this->render('poll/new.html.twig', [
-            'poll' => $poll,
-            'form' => $form->createView(),
+        return $this->redirectToRoute('easyadmin', [
+            'entity' => 'Poll',
+            'action' => 'formEdit',
+            'id' => $poll->getId(),
         ]);
     }
 
     /**
-     * @Route("/{id}", name="poll_show", methods={"GET"})
+     * @Route("/admin/poll/new/{adminId}", name="add_poll", methods={"GET", "POST"})
      */
-    public function show(Poll $poll): Response
+    public function addPoll($adminId)
     {
-        return $this->render('poll/show.html.twig', [
-            'poll' => $poll,
+        $admin = $this->getDoctrine()->getRepository(User::class)->find($adminId);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $poll = new Poll();
+        $poll->setName('New Poll');
+        $poll->setUser($admin);
+
+        $entityManager->persist($poll);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('easyadmin', [
+            'entity' => 'Poll',
+            'action' => 'formEdit',
+            'id' => $poll->getId(),
         ]);
     }
 
     /**
-     * @Route("/{id}/edit", name="poll_edit", methods={"GET","POST"})
+     * @Route("/admin/poll/{pollId}/new/question/{questionId}", name="add_poll_question", methods={"GET", "POST"})
      */
-    public function edit(Request $request, Poll $poll): Response
+    public function addPollQuestion($pollId, $questionId)
     {
-        $form = $this->createForm(PollType::class, $poll);
-        $form->handleRequest($request);
+        $poll = $this->getDoctrine()->getRepository(Poll::class)->find($pollId);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+        $entityManager = $this->getDoctrine()->getManager();
 
-            return $this->redirectToRoute('poll_index');
+        $pollQuestions = $this->getDoctrine()->getRepository(Question::class)->findByPoll($pollId);
+
+        $newQuestion = new Question();
+        $newQuestion->setPoll($poll);
+        $newQuestion->setQuestion('New Question');
+
+        if (empty($pollQuestions)) {
+            $newQuestion->setQuestionNumber(1);
+        } else {
+            $question = $this->getDoctrine()->getRepository(Question::class)->find($questionId);
+
+            $questionNumber = $question->getQuestionNumber();
+
+            foreach ($pollQuestions as $pollQuestion) {
+                $pollQuestionNumber = $pollQuestion->getQuestionNumber();
+
+                if ($pollQuestionNumber > $questionNumber) {
+                    $pollQuestion->setQuestionNumber($pollQuestionNumber + 1);
+                }
+            }
+
+            $newQuestion->setQuestionNumber($questionNumber + 1);
         }
 
-        return $this->render('poll/edit.html.twig', [
-            'poll' => $poll,
-            'form' => $form->createView(),
+        $entityManager->persist($newQuestion);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('easyadmin', [
+            'entity' => 'Poll',
+            'action' => 'formEdit',
+            'id' => $poll->getId(),
         ]);
     }
 
     /**
-     * @Route("/{id}", name="poll_delete", methods={"DELETE"})
+     * @Route("/admin/question/delete/{questionId}", methods={"POST"})
      */
-    public function delete(Request $request, Poll $poll): Response
+    public function deletePollQuestion($questionId)
     {
-        if ($this->isCsrfTokenValid('delete'.$poll->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($poll);
-            $entityManager->flush();
+        $question = $this->getDoctrine()->getRepository(Question::class)->find($questionId);
+
+        $pollId = $question->getPoll()->getId();
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $pollQuestions = $this->getDoctrine()->getRepository(Question::class)->findByPoll($pollId);
+
+        $questionNumber = $question->getQuestionNumber();
+
+        if ($pollQuestions[array_key_last($pollQuestions)]->getQuestionNumber() !== $questionNumber) {
+            foreach ($pollQuestions as $pollQuestion) {
+                $pollQuestionNumber = $pollQuestion->getQuestionNumber();
+
+                if ($pollQuestionNumber > $questionNumber) {
+                    $pollQuestion->setQuestionNumber($pollQuestionNumber - 1);
+                }
+            }
         }
 
-        return $this->redirectToRoute('poll_index');
+        $this->getDoctrine()->getRepository(Option::class)->deleteByQuestion($questionId);
+
+        $entityManager->remove($question);
+        $entityManager->flush();
+
+        $response = new Response();
+        $response->send();
+    }
+
+    /**
+     * @Route("/admin/question/{questionId}/new/option", name="add_question_option", methods={"GET", "POST"})
+     */
+    public function addQuestionOption($questionId)
+    {
+        $question = $this->getDoctrine()->getRepository(Question::class)->find($questionId);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $option = new Option();
+        $option->setQuestion($question);
+        $option->setValue('New Option');
+
+        $entityManager->persist($option);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('easyadmin', [
+            'entity' => 'Poll',
+            'action' => 'formEdit',
+            'id' => $question->getPoll()->getId(),
+        ]);
+    }
+
+    /**
+     * @Route("/admin/option/delete/{optionId}", methods={"POST"})
+     */
+    public function deleteQuestionOption($optionId)
+    {
+        $option = $this->getDoctrine()->getRepository(Option::class)->find($optionId);
+
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $entityManager->remove($option);
+        $entityManager->flush();
+
+        $response = new Response();
+        $response->send();
     }
 }

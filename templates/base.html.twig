@@ -20,7 +20,7 @@
                 <!-- Super admin links -->
                 {% if is_granted("ROLE_SUPER_ADMIN") %}
                     <!-- User import page link -->
-                    <a class="nav-item nav-link" href="{{ path('home') }}">User Import</a>
+                    <a class="nav-item nav-link" href="{{ path('responder_import') }}">User Import</a>
                     <!-- Bot settings link -->
                     <a class="nav-item nav-link" href="{{ path('bot_settings') }}">Bot Settings</a>
                 {% endif %}
@@ -29,7 +29,7 @@
                     <!-- Admin panel link -->
                     <a class="nav-item nav-link" href="{{ path('easyadmin') }}">Admin Panel</a>
                     <!-- Admin polls link -->
-                    <a class="nav-item nav-link" href="{{ path('polls', {'adminId': app.user.id}) }}">Polls</a>
+                    <a class="nav-item nav-link" href="{{ path('easyadmin', {'entity': 'Poll', 'action': 'myList'}) }}">Polls</a>
                 {% endif %}
                 <!-- Logout link -->
                 {% if app.user %}

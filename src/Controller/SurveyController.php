@@ -3,25 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\Answer;
-use App\Entity\Survey;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
 
-class SurveyAdminController extends AbstractController
+class SurveyController extends EasyAdminController
 {
-    /**
-     * @Route("/graph/{surveyId}", name="graph", methods={"GET"})
-     */
-    public function graph($surveyId)
+    public function graphSurveyAction()
     {
-        $survey = $this->getDoctrine()->getRepository(Survey::class)->find($surveyId);
+        $survey = $this->request->attributes->get('easyadmin')['item'];
 
-        $answers = $this->getDoctrine()->getRepository(Answer::class)->findBySurvey($surveyId);
+        $answers = $this->getDoctrine()->getRepository(Answer::class)->findBySurvey($survey->getId());
 
         $assocAnswerArray = array();
 
         foreach ($answers as $answer) {
-            $questionNumber = $answer['question_number'];
+            $questionNumber = $answer['questionNumber'];
 
             $question = $answer['question'];
 
@@ -42,7 +37,7 @@ class SurveyAdminController extends AbstractController
             $assocAnswerArray[$questionNumber]['options'][$optionId]['count'] = $optionCount;
         }
 
-        return $this->render('home/graph.html.twig', [
+        return $this->render('survey/graph.html.twig', [
             'title' => 'Graph',
             'survey' => $survey,
             'answers' => $assocAnswerArray,

@@ -233,7 +233,7 @@
                     e.preventDefault();
                     $.ajax({
                         type: 'post',
-                        url: '/poll/' + pollId + '/new/question/' + questionId,
+                        url: '/admin/poll/' + pollId + '/new/question/' + questionId,
                         success: function (data) {
                             var questionCardClass = '.card.question';
                             var newIds = $(data).find(questionCardClass).map(function() {
@@ -287,7 +287,7 @@
                     if (confirm('Are you sure?')) {
                         $.ajax({
                             type: 'post',
-                            url: '/question/delete/' + questionId,
+                            url: '/admin/question/delete/' + questionId,
                             success: function () {
                                 var questionCardClass = '.card.question';
                                 var questionIds = $(questionCardClass).map(function() {
@@ -325,7 +325,7 @@
                     e.preventDefault();
                     $.ajax({
                         type: 'post',
-                        url: '/question/' + questionId + '/new/option',
+                        url: '/admin/question/' + questionId + '/new/option',
                         success: function (data) {
                             var options = $(data).find('#optionsQuestion' + questionId).children();
                             var newOption = $(options[options.length - 2]);
@@ -343,7 +343,7 @@
                     if (confirm('Are you sure?')) {
                         $.ajax({
                             type: 'post',
-                            url: '/option/delete/' + optionId,
+                            url: '/admin/option/delete/' + optionId,
                             success: function () {
                                 $('#option' + optionId).remove();
                             }
