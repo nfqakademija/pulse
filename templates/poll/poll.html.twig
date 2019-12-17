@@ -15,8 +15,8 @@
         <section id="main" class="content-body">
             {% block main %}
                 {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
-                <div class="card">
-                    <div class="card-header">
+                <div class="">
+                    <div class="">
                         <b>{{ form_row(form.name) }}</b>
                     </div>
                 </div>
@@ -25,12 +25,12 @@
                         {% for question in form.questions
                             |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber())
                         %}
-                            <div class="card question"
+                            <div class="list-group-item question"
                                  id="question{{ question.vars.value.id }}"
                                  data-question-id="{{ question.vars.value.id }}"
                                  style="margin-bottom: 20px;"
                             >
-                                <div class="card-header">
+                                <div >
                                     <b>{{ form_row(question.question) }}</b>
                                     <button class="btn btn-danger delete-question"
                                             data-question-id="{{ question.vars.value.id }}"
@@ -48,11 +48,11 @@
                                         Add question
                                     </button>
                                 </div>
-                                <ul class="list-group list-group-flush">
+                                <div class="list-group list-group-flush">
                                     <div class="row options" id="optionsQuestion{{ question.vars.value.id }}">
                                         {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
                                             <div class="col align-self-center" id="option{{ option.vars.value.id }}">
-                                                <li class="list-group-item">
+                                                <div class="list-group-item">
                                                     <b>{{ form_row(option.value) }}</b>
                                                     <button class="btn btn-danger delete-option"
                                                             data-option-id="{{ option.vars.value.id }}"
@@ -60,7 +60,7 @@
                                                     >
                                                         Delete option
                                                     </button>
-                                                </li>
+                                                </div>
                                             </div>
                                         {% endfor %}
                                         <div class="col align-self-center" id="addOptionQuestion{{ question.vars.value.id }}">
@@ -74,7 +74,7 @@
                                             </li>
                                         </div>
                                     </div>
-                                </ul>
+                                </div>
                             </div>
                         {% endfor %}
                     {% else %}

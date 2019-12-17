@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20191205141833 extends AbstractMigration
+final class Version20191217105019 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -23,8 +23,8 @@ final class Version20191205141833 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('CREATE TABLE `option` (id INT AUTO_INCREMENT NOT NULL, question_id INT NOT NULL, value VARCHAR(255) NOT NULL, INDEX IDX_5A8600B01E27F6BF (question_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE survey (id INT AUTO_INCREMENT NOT NULL, poll_id INT DEFAULT NULL, datetime DATETIME NOT NULL, name VARCHAR(255) NOT NULL, INDEX IDX_AD5F9BFC3C947C0F (poll_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE responder (slack_id VARCHAR(255) NOT NULL, team_lead_id INT DEFAULT NULL, name LONGTEXT NOT NULL, email LONGTEXT NOT NULL, INDEX IDX_5F311AF7FF2C34BA (team_lead_id), PRIMARY KEY(slack_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE survey (id INT AUTO_INCREMENT NOT NULL, poll_id INT DEFAULT NULL, datetime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, name VARCHAR(255) NOT NULL, INDEX IDX_AD5F9BFC3C947C0F (poll_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE responder (slack_id VARCHAR(255) NOT NULL, team_lead_id INT DEFAULT NULL, email VARCHAR(180) DEFAULT NULL, slack_username VARCHAR(255) DEFAULT NULL, department VARCHAR(255) DEFAULT NULL, job_title VARCHAR(255) DEFAULT NULL, full_name VARCHAR(255) DEFAULT NULL, site VARCHAR(255) DEFAULT NULL, team VARCHAR(255) DEFAULT NULL, INDEX IDX_5F311AF7FF2C34BA (team_lead_id), PRIMARY KEY(slack_id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, email VARCHAR(180) NOT NULL, roles JSON NOT NULL, password VARCHAR(255) NOT NULL, UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE poll (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, name VARCHAR(255) NOT NULL, INDEX IDX_84BCFA45A76ED395 (user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE question (id INT AUTO_INCREMENT NOT NULL, poll_id INT DEFAULT NULL, question_number INT NOT NULL, question LONGTEXT NOT NULL, INDEX IDX_B6F7494E3C947C0F (poll_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
