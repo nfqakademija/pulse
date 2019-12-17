@@ -1,383 +1,254 @@
-{% extends 'base.html.twig' %}
+{% extends 'bundles/EasyAdminBundle/default/layout.html.twig' %}
 
 {% block title %}{{ title }}{% endblock %}
-{% block head %}
-    {% block head_stylesheets %}
-        <link rel="stylesheet" href="{{ asset('bundles/easyadmin/app.css') }}">
-    {% endblock %}
-    {% block head_custom_stylesheets %}
-        {% for css_asset in easyadmin_config('design.assets.css') %}
-            <link rel="stylesheet" href="{{ asset(css_asset) }}">
-        {% endfor %}
-    {% endblock head_custom_stylesheets %}
-    {% if easyadmin_config('design.brand_color') != 'hsl(230, 55%, 60%)' %}
-        <style>
-            :root { --color-primary: {{ easyadmin_config('design.brand_color') }}; }
-        </style>
-    {% endif %}
-    {% block head_favicon %}
-        {% set favicon = easyadmin_config('design.assets.favicon') %}
-        <link rel="icon" type="{{ favicon.mime_type }}" href="{{ asset(favicon.path) }}" />
-    {% endblock %}
-    {% block head_javascript %}
-        <script src="{{ asset('bundles/easyadmin/app.js') }}"></script>
-    {% endblock head_javascript %}
-    {% if easyadmin_config('design.rtl') %}
-        <link rel="stylesheet" href="{{ asset('bundles/easyadmin/app.rtl.css') }}">
-        <link rel="stylesheet" href="{{ asset('bundles/easyadmin/app-custom-rtl.css') }}">
-    {% endif %}
-{% endblock %}
 
-{% block body_attributes %} id="{% block body_id %}{% endblock %}" class="easyadmin {% block body_class %}{% endblock %}" {% endblock %}
-{% block body %}
-    <script>
-        document.body.classList.add(
-            'easyadmin-content-width-' + (localStorage.getItem('easyadmin/content/width') || 'normal'),
-            'easyadmin-sidebar-width-' + (localStorage.getItem('easyadmin/sidebar/width') || 'normal')
-        );
-    </script>
-    {% block wrapper_wrapper %}
-        <div class="wrapper">
-            {% block wrapper %}
-                <header class="main-header">
-                    {% block header %}
-                        <nav class="navbar" role="navigation">
-                            <button id="navigation-toggler" type="button" aria-label="Toggle navigation">
-                                <i class="fa fa-fw fa-bars"></i>
-                            </button>
-                            <div id="header-logo">
-                                {% block header_logo %}
-                                    <a class="logo {{ easyadmin_config('site_name')|length > 14 ? 'logo-long' }}" title="{{ easyadmin_config('site_name')|striptags }}" href="{{ path('easyadmin') }}">
-                                        {{ easyadmin_config('site_name')|raw }}
-                                    </a>
-                                {% endblock header_logo %}
-                            </div>
-                        </nav>
-                        {% set _user_name = easyadmin_read_property(app.user, easyadmin_config('user.name_property_path'))|default('user.unnamed'|trans(domain = 'EasyAdminBundle')) %}
-                        {% set _logout_path = easyadmin_logout_path() %}
-                        {% set _user_has_logout = _logout_path is not empty %}
-                        {% set _user_is_impersonated = is_granted('ROLE_PREVIOUS_ADMIN') %}
-                        {% set _user_menu_content %}
-                            <div class="popover-content-section user-details {{ _user_has_logout or _user_is_impersonated ? 'user-has-actions' }}">
-                                <p class="small text-muted mb-0">{{ 'user.logged_in_as'|trans(domain = 'EasyAdminBundle') }}</p>
-                                <p class="user-details-name">
-                                    {% if app.user|default(false) == false %}
-                                        {{ 'user.anonymous'|trans(domain = 'EasyAdminBundle') }}
-                                    {% else %}
-                                        {{ _user_name }}
-                                    {% endif %}
-                                </p>
-                            </div>
-                            {% block user_menu %}
-                                {% if _user_has_logout or _user_is_impersonated %}
-                                    <div class="popover-content-section user-menu">
-                                        {% if _user_has_logout %}
-                                            <a class="user-action user-action-logout" href="{{ _logout_path }}">{{ 'user.signout'|trans(domain = 'EasyAdminBundle') }}</a>
-                                        {% endif %}
-                                        {% if _user_is_impersonated %}
-                                            <a class="user-action user-action-exit-impersonation" href="?_switch_user=_exit">{{ 'user.exit_impersonation'|trans(domain = 'EasyAdminBundle') }}</a>
-                                        {% endif %}
-                                    </div>
-                                {% endif %}
-                            {% endblock user_menu %}
-                        {% endset %}
-                        <div class="content-top navbar-custom-menu">
-                            {% block header_custom_menu %}
-                                <div class="user user-menu-wrapper {{ _user_is_impersonated ? 'user-is-impersonated' }}" data-toggle="popover" data-placement="bottom" data-container=".user-menu-wrapper" data-content="{{ _user_menu_content|e('html_attr') }}" data-html="true">
-                                    {% if easyadmin_config('user.display_avatar') %}
-                                        {% set _avatar_image_path = easyadmin_read_property(app.user, easyadmin_config('user.avatar_property_path')) %}
-                                        {% if null == _avatar_image_path %}
-                                            <i class="fa fa-fw {{ app.user is not null ? 'fa-user-circle' : 'fa-user-times' }} user-avatar"></i>
-                                        {% else %}
-                                            <img class="user-avatar" src="{{ _avatar_image_path }}" />
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if easyadmin_config('user.display_name') %}
-                                        <span class="user-name">{{ _user_name }}</span>
-                                    {% endif %}
-                                </div>
-                            {% endblock header_custom_menu %}
-                        </div>
-                    {% endblock header %}
-                </header>
-                <aside class="main-sidebar">
-                    {% block sidebar %}
-                        <section class="sidebar">
-                            {% block main_menu_wrapper %}
-                                {{ include([
-                                    _entity_config is defined ? _entity_config.templates.menu,
-                                    easyadmin_config('design.templates.menu'),
-                                    '@EasyAdmin/default/menu.html.twig'
-                                ]) }}
-                            {% endblock main_menu_wrapper %}
-                        </section>
-                    {% endblock sidebar %}
-                </aside>
-                <div class="content-wrapper">
-                    {% block flash_messages %}
-                        {{ include(_entity_config is defined ? _entity_config.templates.flash_messages : '@EasyAdmin/default/flash_messages.html.twig') }}
-                    {% endblock flash_messages %}
-                    <div id="sidebar-resizer-handler" class="resizer-handler resizer-handler-left"></div>
-                    {% block content %}
-                        <div class="content">
-                            <div class="content">
-                                <section class="content-header ">
-                                    <div class="d-flex flex-row justify-content-between align-content-center w-100">
-                                        <div class="content-header-title">
-                                            <h1 class="title">    Create Poll</h1>
-                                        </div>
-                                        <div class="global-actions"></div>
-                                    </div>
-                                </section>
-                                <section id="main" class="content-body">
-                            <section id="main" class="content-body">
-                                {% block main %}
-
-                                    {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
-                                    <div class="">
-                                        <div class="">
-                                            <b>{{ form_row(form.name) }}</b>
-                                        </div>
-                                    </div>
-                                    <div id="questions" style="margin-top: 25px;">
-                                        {% if form.questions|length > 0 %}
-                                            {% for question in form.questions
-                                                |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber())
-                                            %}
-                                                <div class="question list-group-item"
-                                                     id="question{{ question.vars.value.id }}"
-                                                     data-question-id="{{ question.vars.value.id }}"
-                                                     style="margin-bottom: 20px;"
-                                                >
-                                                    <div>
-                                                        <b>{{ form_row(question.question) }}</b>
-                                                        <button class="btn btn-danger delete-question"
-                                                                data-question-id="{{ question.vars.value.id }}"
-                                                                data-question-number="{{ question.vars.value.getQuestionNumber() }}"
-                                                                id="deleteQuestion{{ question.vars.value.id }}"
-                                                                style="margin-bottom: 15px;"
-
-                                                        >
-                                                            Delete question
-                                                        </button>
-                                                        <button class="btn btn-primary add-question"
-                                                                data-poll-id="{{ form.vars.value.id }}"
-                                                                data-question-id="{{ question.vars.value.id }}"
-                                                                data-question-number="{{ question.vars.value.getQuestionNumber() }}"
-                                                                id="addQuestion{{ question.vars.value.id }}"
-                                                                style="margin-bottom: 15px;"
-                                                        >
-                                                            Add question
-                                                        </button>
-                                                    </div>
-                                                    <div class="list-group list-group-flush">
-                                                        <div class="row options" id="optionsQuestion{{ question.vars.value.id }}">
-                                                            {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
-                                                                <div class="col align-self-center" style="padding-bottom: 15px;" id="option{{ option.vars.value.id }}">
-                                                                    <div class="">
-                                                                        <b>{{ form_row(option.value) }}</b>
-                                                                        <button class="btn btn-danger delete-option"
-                                                                                data-option-id="{{ option.vars.value.id }}"
-                                                                                id="deleteOption{{ option.vars.value.id }}"
-                                                                        >
-                                                                            Delete option
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            {% endfor %}
-                                                            <div class="col align-self-center" style="margin-bottom: 30px;" id="addOptionQuestion{{ question.vars.value.id }}">
-                                                                <div class="">
-                                                                    <button class="btn btn-primary add-option"
-                                                                            data-question-id="{{ question.vars.value.id }}"
-                                                                            id="addOptionToQuestion{{ question.vars.value.id }}"
-                                                                    >
-                                                                        Add option
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <div class="" style="margin-bottom: 20px;">
-                                                <div class="">
-                                                    <button class="btn btn-primary add-question"
-                                                            data-poll-id="{{ form.vars.value.id }}"
-                                                            data-question-id="-1"
-                                                            data-question-number="-1"
-                                                            id="addQuestion-1"
-                                                    >
-                                                        Add question
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-
-
-                                    <section class="content-footer">
-                                        <div class="form-actions">
-                                            {{ form_end(form) }}
-                                            <a class=" btn btn-link pr-0 action-list" title="" href="/admin/?entity=Poll&amp;action=list" target="_self">Back to listing</a>
-                                        </div>
-                                    </section>
-                                {% endblock %}
-                            </section>
-                        </div>
-                    {% endblock content %}
-                    <div id="content-resizer-handler" class="resizer-handler resizer-handler-right"></div>
+{% block content %}
+    <div class="content">
+        <section class="content-header ">
+            <div class="d-flex flex-row justify-content-between align-content-center w-100">
+                <div class="content-header-title">
+                    <h1 class="title">Create Poll</h1>
                 </div>
-            {% endblock wrapper %}
-        </div>
-    {% endblock wrapper_wrapper %}
-    {% block body_javascript %}
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-                integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-                crossorigin="anonymous"
-        ></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-                integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-                crossorigin="anonymous"
-        ></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-                integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-                crossorigin="anonymous"
-        ></script>
-        <script>
-            // Add question
-            $(function () {
-                $(document).on('click', '.btn.btn-primary.add-question', function (e) {
-                    var addQuestionButton = $('#' + e.target.id);
-                    var pollId = addQuestionButton.attr('data-poll-id');
-                    var questionId = addQuestionButton.attr('data-question-id');
-                    e.preventDefault();
-                    $.ajax({
-                        type: 'post',
-                        url: '/admin/poll/' + pollId + '/new/question/' + questionId,
-                        success: function (data) {
-                            var questionCardClass = '.card.question';
-                            var newIds = $(data).find(questionCardClass).map(function() {
+                <div class="global-actions"></div>
+            </div>
+        </section>
+        <section id="main" class="content-body">
+            {% block main %}
+                {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
+                <div class="card">
+                    <div class="card-header">
+                        <b>{{ form_row(form.name) }}</b>
+                    </div>
+                </div>
+                <div id="questions" style="margin-top: 20px;">
+                    {% if form.questions|length > 0 %}
+                        {% for question in form.questions
+                            |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber())
+                        %}
+                            <div class="card question"
+                                 id="question{{ question.vars.value.id }}"
+                                 data-question-id="{{ question.vars.value.id }}"
+                                 style="margin-bottom: 20px;"
+                            >
+                                <div class="card-header">
+                                    <b>{{ form_row(question.question) }}</b>
+                                    <button class="btn btn-danger delete-question"
+                                            data-question-id="{{ question.vars.value.id }}"
+                                            data-question-number="{{ question.vars.value.getQuestionNumber() }}"
+                                            id="deleteQuestion{{ question.vars.value.id }}"
+                                    >
+                                        Delete question
+                                    </button>
+                                    <button class="btn btn-primary add-question"
+                                            data-poll-id="{{ form.vars.value.id }}"
+                                            data-question-id="{{ question.vars.value.id }}"
+                                            data-question-number="{{ question.vars.value.getQuestionNumber() }}"
+                                            id="addQuestion{{ question.vars.value.id }}"
+                                    >
+                                        Add question
+                                    </button>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <div class="row options" id="optionsQuestion{{ question.vars.value.id }}">
+                                        {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
+                                            <div class="col align-self-center" id="option{{ option.vars.value.id }}">
+                                                <li class="list-group-item">
+                                                    <b>{{ form_row(option.value) }}</b>
+                                                    <button class="btn btn-danger delete-option"
+                                                            data-option-id="{{ option.vars.value.id }}"
+                                                            id="deleteOption{{ option.vars.value.id }}"
+                                                    >
+                                                        Delete option
+                                                    </button>
+                                                </li>
+                                            </div>
+                                        {% endfor %}
+                                        <div class="col align-self-center" id="addOptionQuestion{{ question.vars.value.id }}">
+                                            <li class="list-group-item">
+                                                <button class="btn btn-primary add-option"
+                                                        data-question-id="{{ question.vars.value.id }}"
+                                                        id="addOptionToQuestion{{ question.vars.value.id }}"
+                                                >
+                                                    Add option
+                                                </button>
+                                            </li>
+                                        </div>
+                                    </div>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="card" style="margin-bottom: 20px;">
+                            <div class="card-header">
+                                <button class="btn btn-primary add-question"
+                                        data-poll-id="{{ form.vars.value.id }}"
+                                        data-question-id="-1"
+                                        data-question-number="-1"
+                                        id="addQuestion-1"
+                                >
+                                    Add question
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endblock %}
+        </section>
+        <section class="content-footer">
+            <div class="form-actions">
+                {{ form_end(form) }}
+                <a class=" btn btn-link pr-0 action-list"
+                   title=""
+                   href="/admin/?entity=Poll&amp;action=list"
+                   target="_self"
+                >
+                    Back to listing
+                </a>
+            </div>
+        </section>
+    </div>
+{% endblock content %}
+
+{% block body_javascript %}
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"
+    ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"
+    ></script>
+    <script>
+        // Add question
+        $(function () {
+            $(document).on('click', '.btn.btn-primary.add-question', function (e) {
+                var addQuestionButton = $('#' + e.target.id);
+                var pollId = addQuestionButton.attr('data-poll-id');
+                var questionId = addQuestionButton.attr('data-question-id');
+                e.preventDefault();
+                $.ajax({
+                    type: 'post',
+                    url: '/admin/poll/' + pollId + '/new/question/' + questionId,
+                    success: function (data) {
+                        var questionCardClass = '.card.question';
+                        var newIds = $(data).find(questionCardClass).map(function() {
+                            return this.id;
+                        }).get();
+                        if ($(questionCardClass)[0]) {
+                            var oldIds = $(questionCardClass).map(function() {
                                 return this.id;
                             }).get();
-                            if ($(questionCardClass)[0]) {
-                                var oldIds = $(questionCardClass).map(function() {
-                                    return this.id;
-                                }).get();
-                                var insertAfterLastQuestion = true;
-                                var insertIndex = Object.keys(oldIds).length - 1;
-                                $.each(oldIds , function(key, value) {
-                                    if (value !== newIds[key]) {
-                                        insertAfterLastQuestion = false;
-                                        insertIndex = parseInt(key);
-                                        var questionCardId = $('#' + value).attr('data-question-id');
-                                        var addButton = $('#' + 'addQuestion' + questionCardId);
-                                        var addButtonQuestionNumber = parseInt(addButton.attr('data-question-number'));
-                                        addButton.attr('data-question-number', addButtonQuestionNumber + 1);
-                                        var delButton = $('#' + 'deleteQuestion' + questionCardId);
-                                        var delButtonQuestionNumber = parseInt(delButton.attr('data-question-number'));
-                                        delButton.attr('data-question-number', delButtonQuestionNumber + 1);
+                            var insertAfterLastQuestion = true;
+                            var insertIndex = Object.keys(oldIds).length - 1;
+                            $.each(oldIds , function(key, value) {
+                                if (value !== newIds[key]) {
+                                    insertAfterLastQuestion = false;
+                                    insertIndex = parseInt(key);
+                                    var questionCardId = $('#' + value).attr('data-question-id');
+                                    var addButton = $('#' + 'addQuestion' + questionCardId);
+                                    var addButtonQuestionNumber = parseInt(addButton.attr('data-question-number'));
+                                    addButton.attr('data-question-number', addButtonQuestionNumber + 1);
+                                    var delButton = $('#' + 'deleteQuestion' + questionCardId);
+                                    var delButtonQuestionNumber = parseInt(delButton.attr('data-question-number'));
+                                    delButton.attr('data-question-number', delButtonQuestionNumber + 1);
+                                }
+                            });
+                            var question = $('#' + oldIds[insertIndex]);
+                            var newQuestion = $(data).find('#' + newIds[insertIndex]);
+                            if (insertAfterLastQuestion) {
+                                newQuestion = $(data).find('#' + newIds[insertIndex + 1]);
+                                $(newQuestion.prop('outerHTML')).insertAfter(question);
+                            } else if (insertIndex > 0) {
+                                question = $('#' + oldIds[insertIndex - 1]);
+                                $(newQuestion.prop('outerHTML')).insertAfter(question);
+                            } else {
+                                $(newQuestion.prop('outerHTML')).insertBefore(question);
+                            }
+                        } else {
+                            $('#questions').load(location.href + ' #questions>*', '');
+                        }
+                    }
+                });
+            });
+        });
+
+        // Delete question
+        $(function () {
+            $(document).on('click', '.btn.btn-danger.delete-question', function (e) {
+                var deleteQuestionButton = $('#' + e.target.id);
+                var questionId = deleteQuestionButton.attr('data-question-id');
+                var questionNumber = parseInt(deleteQuestionButton.attr('data-question-number'));
+                e.preventDefault();
+                if (confirm('Are you sure?')) {
+                    $.ajax({
+                        type: 'post',
+                        url: '/admin/question/delete/' + questionId,
+                        success: function () {
+                            var questionCardClass = '.card.question';
+                            var questionIds = $(questionCardClass).map(function() {
+                                return this.id;
+                            }).get();
+                            var questionCount = Object.keys(questionIds).length;
+                            if (questionCount !== questionNumber) {
+                                $.each(questionIds , function(key, value) {
+                                    var questionCardId = $('#' + value).attr('data-question-id');
+                                    var addButton = $('#' + 'addQuestion' + questionCardId);
+                                    var addButtonQuestionNumber = parseInt(addButton.attr('data-question-number'));
+                                    var delButton = $('#' + 'deleteQuestion' + questionCardId);
+                                    var delButtonQuestionNumber = parseInt(delButton.attr('data-question-number'));
+                                    if (addButtonQuestionNumber > questionNumber) {
+                                        addButton.attr('data-question-number', addButtonQuestionNumber - 1);
+                                        delButton.attr('data-question-number', delButtonQuestionNumber - 1);
                                     }
                                 });
-                                var question = $('#' + oldIds[insertIndex]);
-                                var newQuestion = $(data).find('#' + newIds[insertIndex]);
-                                if (insertAfterLastQuestion) {
-                                    newQuestion = $(data).find('#' + newIds[insertIndex + 1]);
-                                    $(newQuestion.prop('outerHTML')).insertAfter(question);
-                                } else if (insertIndex > 0) {
-                                    question = $('#' + oldIds[insertIndex - 1]);
-                                    $(newQuestion.prop('outerHTML')).insertAfter(question);
-                                } else {
-                                    $(newQuestion.prop('outerHTML')).insertBefore(question);
-                                }
-                            } else {
+                            }
+                            $('#question' + questionId).remove();
+                            if (questionCount === 1)
+                            {
                                 $('#questions').load(location.href + ' #questions>*', '');
                             }
                         }
                     });
-                });
+                }
             });
+        });
 
-            // Delete question
-            $(function () {
-                $(document).on('click', '.btn.btn-danger.delete-question', function (e) {
-                    var deleteQuestionButton = $('#' + e.target.id);
-                    var questionId = deleteQuestionButton.attr('data-question-id');
-                    var questionNumber = parseInt(deleteQuestionButton.attr('data-question-number'));
-                    e.preventDefault();
-                    if (confirm('Are you sure?')) {
-                        $.ajax({
-                            type: 'post',
-                            url: '/admin/question/delete/' + questionId,
-                            success: function () {
-                                var questionCardClass = '.card.question';
-                                var questionIds = $(questionCardClass).map(function() {
-                                    return this.id;
-                                }).get();
-                                var questionCount = Object.keys(questionIds).length;
-                                if (questionCount !== questionNumber) {
-                                    $.each(questionIds , function(key, value) {
-                                        var questionCardId = $('#' + value).attr('data-question-id');
-                                        var addButton = $('#' + 'addQuestion' + questionCardId);
-                                        var addButtonQuestionNumber = parseInt(addButton.attr('data-question-number'));
-                                        var delButton = $('#' + 'deleteQuestion' + questionCardId);
-                                        var delButtonQuestionNumber = parseInt(delButton.attr('data-question-number'));
-                                        if (addButtonQuestionNumber > questionNumber) {
-                                            addButton.attr('data-question-number', addButtonQuestionNumber - 1);
-                                            delButton.attr('data-question-number', delButtonQuestionNumber - 1);
-                                        }
-                                    });
-                                }
-                                $('#question' + questionId).remove();
-                                if (questionCount === 1)
-                                {
-                                    $('#questions').load(location.href + ' #questions>*', '');
-                                }
-                            }
-                        });
+        // Add option
+        $(function () {
+            $(document).on('click', '.btn.btn-primary.add-option', function (e) {
+                var questionId = $('#' + e.target.id).attr('data-question-id');
+                e.preventDefault();
+                $.ajax({
+                    type: 'post',
+                    url: '/admin/question/' + questionId + '/new/option',
+                    success: function (data) {
+                        var options = $(data).find('#optionsQuestion' + questionId).children();
+                        var newOption = $(options[options.length - 2]);
+                        $(newOption.prop('outerHTML')).insertBefore($('#addOptionQuestion' + questionId));
                     }
                 });
             });
+        });
 
-            // Add option
-            $(function () {
-                $(document).on('click', '.btn.btn-primary.add-option', function (e) {
-                    var questionId = $('#' + e.target.id).attr('data-question-id');
-                    e.preventDefault();
+        // Delete option
+        $(function () {
+            $(document).on('click', '.btn.btn-danger.delete-option', function (e) {
+                var optionId = $('#' + e.target.id).attr('data-option-id');
+                e.preventDefault();
+                if (confirm('Are you sure?')) {
                     $.ajax({
                         type: 'post',
-                        url: '/admin/question/' + questionId + '/new/option',
-                        success: function (data) {
-                            var options = $(data).find('#optionsQuestion' + questionId).children();
-                            var newOption = $(options[options.length - 2]);
-                            $(newOption.prop('outerHTML')).insertBefore($('#addOptionQuestion' + questionId));
+                        url: '/admin/option/delete/' + optionId,
+                        success: function () {
+                            $('#option' + optionId).remove();
                         }
                     });
-                });
+                }
             });
-
-            // Delete option
-            $(function () {
-                $(document).on('click', '.btn.btn-danger.delete-option', function (e) {
-                    var optionId = $('#' + e.target.id).attr('data-option-id');
-                    e.preventDefault();
-                    if (confirm('Are you sure?')) {
-                        $.ajax({
-                            type: 'post',
-                            url: '/admin/option/delete/' + optionId,
-                            success: function () {
-                                $('#option' + optionId).remove();
-                            }
-                        });
-                    }
-                });
-            });
-        </script>
-    {% endblock body_javascript %}
-    {% block body_custom_javascript %}
-        {% for js_asset in easyadmin_config('design.assets.js') %}
-            <script src="{{ asset(js_asset) }}"></script>
-        {% endfor %}
-    {% endblock body_custom_javascript %}
-{% endblock body %}
+        });
+    </script>
+{% endblock body_javascript %}

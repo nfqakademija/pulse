@@ -26,6 +26,7 @@ class SlackController extends AbstractController
             'entity' => 'Poll',
         ]);
     }
+
     /**
      * @Route(path = "/ask_poll/workspace", name = "send_workspace")
      */
@@ -56,6 +57,7 @@ class SlackController extends AbstractController
             var_dump($t);
         }
     }
+
     /**
      * @Route("/superadmin/bot/settings", name="bot_settings", methods={"GET", "POST"})
      */

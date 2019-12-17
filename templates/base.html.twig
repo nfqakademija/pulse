@@ -17,12 +17,14 @@
             <a class="navbar-brand" href="{{ path('easyadmin') }}">NFQ Pulse</a>
             <!-- Links -->
             <div class="navbar-nav">
+                <!-- About page link -->
+                {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SUPER_ADMIN") %}
+                    <a class="nav-item nav-link" href="{{ path('about') }}">About</a>
+                {% endif %}
                 <!-- Super admin links -->
                 {% if is_granted("ROLE_SUPER_ADMIN") %}
-                    <!-- About page link -->
-                    <a class="nav-item nav-link" href="{{ path('about') }}">About the project</a>
-                    <!-- User import page link -->
-                    <a class="nav-item nav-link" href="{{ path('responder_import') }}">User Import</a>
+                    <!-- Responder import page link -->
+                    <a class="nav-item nav-link" href="{{ path('responder_import') }}">Import Responders</a>
                     <!-- Bot settings link -->
                     <a class="nav-item nav-link" href="{{ path('bot_settings') }}">Bot Settings</a>
                 {% endif %}

@@ -25,11 +25,13 @@ easy_admin:
       - label: "Answer"
         children:
           - {entity: Answer, label: "List", icon: "th-list" }
-      - {label: "Settings"}
-      - label: "SlackBot"
+      - {label: "Super Admin", permission: 'ROLE_SUPER_ADMIN'}
+      - label: "Actions"
+        permission: 'ROLE_SUPER_ADMIN'
         children:
-          - {label: "Settings", icon: "cog", route: "bot_settings" }
-      - {entity: User, icon: "user", permission: 'ROLE_SUPER_ADMIN'}
+          - {label: "SlackBot Settings", icon: "cog", route: "bot_settings", permission: 'ROLE_SUPER_ADMIN' }
+          - {label: "Import Responders", icon: "file-import", route: "responder_import", permission: 'ROLE_SUPER_ADMIN'}
+          - {entity: User, icon: "user", permission: 'ROLE_SUPER_ADMIN'}
   site_name: "NFQ Pulse"
   user:
     name_property_path: "email"

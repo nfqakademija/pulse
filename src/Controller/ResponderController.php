@@ -25,7 +25,7 @@ class ResponderController extends AbstractController
 
         $form = $this->createFormBuilder($fileImport)
             ->add('userImportFile', FileType::class, [
-                'label' => 'User Import (CSV)',
+                'label' => 'Responder Import (CSV)',
                 'mapped' => false,
                 'attr' => [
                     'class' => 'form-control',
@@ -55,7 +55,9 @@ class ResponderController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var UploadedFile $userImportFile */
             $userImportFile = $form['userImportFile']->getData();
+
             $fileExtension = $userImportFile->guessExtension();
+
             $allowedExtensions = ['csv', 'txt'];
 
             if (in_array($fileExtension, $allowedExtensions)) {
