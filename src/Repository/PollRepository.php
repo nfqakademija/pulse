@@ -29,6 +29,8 @@ class PollRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->andWhere('p.user = :userId')
             ->setParameter('userId', $userId)
+            ->addOrderBy('p.name', 'ASC')
+            ->addOrderBy('p.id', 'DESC')
             ->getQuery()
             ->getResult();
     }

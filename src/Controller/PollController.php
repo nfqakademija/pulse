@@ -51,29 +51,6 @@ class PollController extends EasyAdminController
     }
 
     /**
-     * @Route("/easyadmin/poll/new/{adminId}", name="easyadmin_add_poll", methods={"GET", "POST"})
-     */
-    public function easyAdminAddPoll($adminId)
-    {
-        $admin = $this->getDoctrine()->getRepository(User::class)->find($adminId);
-
-        $entityManager = $this->getDoctrine()->getManager();
-
-        $poll = new Poll();
-        $poll->setName('New Poll');
-        $poll->setUser($admin);
-
-        $entityManager->persist($poll);
-        $entityManager->flush();
-
-        return $this->redirectToRoute('easyadmin', [
-            'entity' => 'Poll',
-            'action' => 'formEdit',
-            'id' => $poll->getId(),
-        ]);
-    }
-
-    /**
      * @Route("/admin/poll/new/{adminId}", name="add_poll", methods={"GET", "POST"})
      */
     public function addPoll($adminId)

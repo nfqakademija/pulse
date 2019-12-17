@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="content">
-        <section class="content-header ">
+        <section class="content-header">
             <div class="d-flex flex-row justify-content-between align-content-center w-100">
                 <div class="content-header-title">
                     <h1 class="title">Create Poll</h1>
@@ -15,8 +15,8 @@
         <section id="main" class="content-body">
             {% block main %}
                 {{ form_start(form, { 'attr': {'style': 'margin-top: 20px;' } }) }}
-                <div class="">
-                    <div class="">
+                <div class="card" style="border-style: solid; border-width: 5px;">
+                    <div class="card-header">
                         <b>{{ form_row(form.name) }}</b>
                     </div>
                 </div>
@@ -25,12 +25,12 @@
                         {% for question in form.questions
                             |sort((a, b) => a.vars.value.getQuestionNumber() <=> b.vars.value.getQuestionNumber())
                         %}
-                            <div class="list-group-item question"
+                            <div class="card question"
                                  id="question{{ question.vars.value.id }}"
                                  data-question-id="{{ question.vars.value.id }}"
-                                 style="margin-bottom: 20px;"
+                                 style="margin-bottom: 20px; border-style: solid; border-width: 5px;"
                             >
-                                <div >
+                                <div class="card-header" style="background-color: inherit;">
                                     <b>{{ form_row(question.question) }}</b>
                                     <button class="btn btn-danger delete-question"
                                             data-question-id="{{ question.vars.value.id }}"
@@ -48,11 +48,11 @@
                                         Add question
                                     </button>
                                 </div>
-                                <div class="list-group list-group-flush">
+                                <ul class="list-group list-group-flush">
                                     <div class="row options" id="optionsQuestion{{ question.vars.value.id }}">
                                         {% for option in question.options|sort((a, b) => a.vars.value.id <=> b.vars.value.id) %}
                                             <div class="col align-self-center" id="option{{ option.vars.value.id }}">
-                                                <div class="list-group-item">
+                                                <li class="list-group-item">
                                                     <b>{{ form_row(option.value) }}</b>
                                                     <button class="btn btn-danger delete-option"
                                                             data-option-id="{{ option.vars.value.id }}"
@@ -60,7 +60,7 @@
                                                     >
                                                         Delete option
                                                     </button>
-                                                </div>
+                                                </li>
                                             </div>
                                         {% endfor %}
                                         <div class="col align-self-center" id="addOptionQuestion{{ question.vars.value.id }}">
@@ -74,7 +74,7 @@
                                             </li>
                                         </div>
                                     </div>
-                                </div>
+                                </ul>
                             </div>
                         {% endfor %}
                     {% else %}
@@ -92,11 +92,11 @@
                         </div>
                     {% endif %}
                 </div>
+                {{ form_end(form) }}
             {% endblock %}
         </section>
         <section class="content-footer">
             <div class="form-actions">
-                {{ form_end(form) }}
                 <a class=" btn btn-link pr-0 action-list"
                    title=""
                    href="/admin/?entity=Poll&amp;action=list"

@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="content">
-        <section class="content-header ">
+        <section class="content-header">
             <div class="d-flex flex-row justify-content-between align-content-center w-100">
                 <div class="content-header-title">
                     <h1 class="title">Slack channel info</h1>
@@ -18,7 +18,7 @@
                     <div class="card" style="margin: 20px;">
                         <div class="card-header">
                             <b>
-                                {{ form_start(form) }}
+                                {{ form_start(form, { 'attr': {'style': 'background-color: inherit;' } }) }}
                                 {{ form_widget(form) }}
                                 {{ form_end(form) }}
                             </b>

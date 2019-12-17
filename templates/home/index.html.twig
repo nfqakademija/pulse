@@ -1,7 +1,21 @@
-{% extends 'base.html.twig' %}
+{% extends 'bundles/EasyAdminBundle/default/layout.html.twig' %}
 
 {% block title %}{{ someVariable }}{% endblock %}
 
-{% block body %}
-    <div class="nfq-academy">{{ someVariable }}</div>
-{% endblock %}
+{% block content %}
+    <div class="content">
+        <section class="content-header">
+            <div class="d-flex flex-row justify-content-between align-content-center w-100">
+                <div class="content-header-title">
+                    <h1 class="title"><b>About</b></h1>
+                </div>
+                <div class="global-actions"></div>
+            </div>
+        </section>
+        <section id="main" class="content-body">
+            {% block main %}
+                <div class="nfq-academy">{{ someVariable }}</div>
+            {% endblock %}
+        </section>
+    </div>
+{% endblock content %}

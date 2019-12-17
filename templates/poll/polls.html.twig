@@ -4,7 +4,7 @@
 
 {% block content %}
     <div class="content">
-        <section class="content-header ">
+        <section class="content-header">
             <div class="d-flex flex-row justify-content-between align-content-center w-100">
                 <div class="content-header-title">
                     <h1 class="title">Create Poll</h1>
@@ -12,7 +12,7 @@
                 <div class="global-actions"></div>
             </div>
         </section>
-        <section id="main" class="content-body h-100">
+        <section id="main" class="content-body">
             {% block main %}
                 <div class="btn-group" style="margin: 20px 20px 0px 20px;">
                     <button type="button"
@@ -69,6 +69,17 @@
                     </div>
                 </div>
             {% endblock %}
+        </section>
+        <section class="content-footer">
+            <div class="form-actions">
+                <a class=" btn btn-link pr-0 action-list"
+                   title=""
+                   href="/admin/?entity=Poll&amp;action=list"
+                   target="_self"
+                >
+                    Back to listing
+                </a>
+            </div>
         </section>
     </div>
 {% endblock content %}
