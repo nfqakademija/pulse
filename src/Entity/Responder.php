@@ -29,6 +29,7 @@ class Responder
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="responder")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $teamLead;
 

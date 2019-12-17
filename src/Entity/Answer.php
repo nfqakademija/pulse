@@ -18,34 +18,28 @@ class Answer
     private $id;
 
     /**
-     * @ORM\Column(type="string")
-     *
+     * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
      */
     private $value;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Question", inversedBy="responses")
-     * @ORM\JoinColumn(nullable=true)
-     */
-    private $question;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Responder", inversedBy="answers")
-     * @ORM\JoinColumn(referencedColumnName="slack_id", nullable=true)
+     * @ORM\JoinColumn(referencedColumnName="slack_id", onDelete="SET NULL")
      */
     private $responder;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Survey", inversedBy="answers")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $survey;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Option", inversedBy="answers")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $answerOption;
-
 
     public function __construct()
     {
@@ -64,18 +58,6 @@ class Answer
     public function setValue(string $value): self
     {
         $this->value = $value;
-
-        return $this;
-    }
-
-    public function getQuestion(): ?Question
-    {
-        return $this->question;
-    }
-
-    public function setQuestion(?Question $question): self
-    {
-        $this->question = $question;
 
         return $this;
     }

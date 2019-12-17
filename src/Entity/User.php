@@ -45,7 +45,6 @@ class User implements UserInterface
      */
     private $responders;
 
-
     public function __construct()
     {
         $this->polls = new ArrayCollection();

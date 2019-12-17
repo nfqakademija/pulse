@@ -57,12 +57,11 @@ class PollController extends EasyAdminController
     {
         $admin = $this->getDoctrine()->getRepository(User::class)->find($adminId);
 
-        $entityManager = $this->getDoctrine()->getManager();
-
         $poll = new Poll();
         $poll->setName('New Poll');
         $poll->setUser($admin);
 
+        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($poll);
         $entityManager->flush();
 
@@ -79,8 +78,6 @@ class PollController extends EasyAdminController
     public function addPollQuestion($pollId, $questionId)
     {
         $poll = $this->getDoctrine()->getRepository(Poll::class)->find($pollId);
-
-        $entityManager = $this->getDoctrine()->getManager();
 
         $pollQuestions = $this->getDoctrine()->getRepository(Question::class)->findByPoll($pollId);
 
@@ -106,6 +103,7 @@ class PollController extends EasyAdminController
             $newQuestion->setQuestionNumber($questionNumber + 1);
         }
 
+        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($newQuestion);
         $entityManager->flush();
 
@@ -125,8 +123,6 @@ class PollController extends EasyAdminController
 
         $pollId = $question->getPoll()->getId();
 
-        $entityManager = $this->getDoctrine()->getManager();
-
         $pollQuestions = $this->getDoctrine()->getRepository(Question::class)->findByPoll($pollId);
 
         $questionNumber = $question->getQuestionNumber();
@@ -141,8 +137,7 @@ class PollController extends EasyAdminController
             }
         }
 
-        $this->getDoctrine()->getRepository(Option::class)->deleteByQuestion($questionId);
-
+        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($question);
         $entityManager->flush();
 
@@ -157,12 +152,11 @@ class PollController extends EasyAdminController
     {
         $question = $this->getDoctrine()->getRepository(Question::class)->find($questionId);
 
-        $entityManager = $this->getDoctrine()->getManager();
-
         $option = new Option();
         $option->setQuestion($question);
         $option->setValue('New Option');
 
+        $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($option);
         $entityManager->flush();
 
@@ -181,7 +175,6 @@ class PollController extends EasyAdminController
         $option = $this->getDoctrine()->getRepository(Option::class)->find($optionId);
 
         $entityManager = $this->getDoctrine()->getManager();
-
         $entityManager->remove($option);
         $entityManager->flush();
 

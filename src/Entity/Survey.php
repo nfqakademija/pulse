@@ -25,6 +25,7 @@ class Survey
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Poll", inversedBy="surveys")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $poll;
 

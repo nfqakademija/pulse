@@ -25,7 +25,7 @@ class Poll
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="polls")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $user;
 
@@ -44,7 +44,6 @@ class Poll
         $this->questions = new ArrayCollection();
         $this->surveys = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -74,7 +73,6 @@ class Poll
 
         return $this;
     }
-
 
     public function __toString(): string
     {

@@ -40,6 +40,7 @@ class Question
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Poll", inversedBy="questions")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $poll;
 
@@ -109,6 +110,7 @@ class Question
 
         return $this;
     }
+
     public function __toString()
     {
         return $this->question;

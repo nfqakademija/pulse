@@ -26,7 +26,7 @@ class Option extends AbstractType
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Question", inversedBy="options")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $question;
 
@@ -39,8 +39,6 @@ class Option extends AbstractType
     {
         $this->answers = new ArrayCollection();
     }
-
-
 
     public function getId(): ?int
     {
