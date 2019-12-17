@@ -32,7 +32,7 @@ class Answer
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Responder", inversedBy="answers")
-     * @ORM\JoinColumn(referencedColumnName="slack_id", nullable=false)
+     * @ORM\JoinColumn(referencedColumnName="slack_id", nullable=true)
      */
     private $responder;
 

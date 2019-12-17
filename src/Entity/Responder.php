@@ -110,7 +110,7 @@ class Responder
 
     public function __toString()
     {
-        return $this->slackUsername;
+        return $this->slackId;
     }
 
     public function getSlackId(): ?string

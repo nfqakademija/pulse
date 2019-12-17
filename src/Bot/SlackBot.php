@@ -4,7 +4,6 @@ namespace App\Bot;
 
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Drivers\DriverManager;
-use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 use BotMan\BotMan\Messages\Outgoing\Question;
 use BotMan\Drivers\Slack\SlackRTMDriver;
@@ -18,7 +17,6 @@ class SlackBot
 
     public function __construct($token, $host)
     {
-
         DriverManager::loadDriver(SlackRTMDriver::class);
         $this->loop = Factory::create();
         $this->host = $host;
@@ -135,14 +133,7 @@ class SlackBot
                 $question = $this->handleData($data, $index);
                 $index++;
                 $bot->typesAndWaits(1);
-                $bot->ask($question, function (Answer $response) {
-//                    if ($response->isInteractiveMessageReply()) {
-//                        $selectedValue = $response->getValue(); // will be either 'yes' or 'no'
-//                        $selectedText = $response->getText(); // will be either 'Of course' or 'Hell no!'
-//                        var_dump($selectedText);
-//                        $this->firstname = $response->getText();
-//                    }
-                });
+                $bot->say($question);
             }
         });
     }

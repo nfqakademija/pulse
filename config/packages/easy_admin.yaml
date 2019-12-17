@@ -144,10 +144,7 @@ easy_admin:
           - survey
       list:
         fields:
-          - id
           - value
-          - answerOption
-          - responder
           - survey
     Option:
       class: App\Entity\Option
