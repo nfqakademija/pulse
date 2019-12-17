@@ -84,7 +84,6 @@ easy_admin:
           - name
           - datetime
           - poll
-          - answers
       list:
         fields:
           - id
@@ -106,6 +105,7 @@ easy_admin:
           - questions
           - surveys
       list:
+        collapse_actions: true
         fields:
           - id
           - name
@@ -143,6 +143,7 @@ easy_admin:
           - responder
           - survey
       list:
+        actions: ['-edit', '-new']
         fields:
           - value
           - survey

@@ -57,8 +57,9 @@ class ApiController extends AbstractFOSRestController
             header('HTTP/1.1 400 Bad Request', true, 400);
             exit;
         }
-        //var_dump($message['actions'][0]['value']);
-        //var_dump($message);
+        var_dump($message['actions'][0]['value']);
+        var_dump("skyriklis");
+        var_dump($message);
 
         $post_data = (array('value' => $message['actions'][0]['value'],
             'responder' => $message['user']['id'],
