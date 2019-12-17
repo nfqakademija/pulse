@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Form;
+
 use App\Entity\Answer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 class AnswerType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -15,6 +18,7 @@ class AnswerType extends AbstractType
             ->add('question')
             ->add('save', SubmitType::class);
     }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

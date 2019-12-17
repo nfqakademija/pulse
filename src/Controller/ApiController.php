@@ -9,7 +9,6 @@ use App\Form\AnswerType;
 use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +29,7 @@ class ApiController extends AbstractFOSRestController
     {
         // $dotenv = new Dotenv();
         // $dotenv->load(__DIR__ . '/.env');
-        $SLACK_SIGNING_SECRET = "af0680eed95615d2226b740e8098bd3c"; // getenv("SLACK_SIGNING_SECRET");
+        $SLACK_SIGNING_SECRET = "13b9b250f27abf997bb8e9b869138458"; // getenv("SLACK_SIGNING_SECRET");
         $answer = new Answer();
         $form = $this->createForm(AnswerType::class, $answer);
         $raw_body = file_get_contents('php://input');
@@ -85,6 +84,7 @@ class ApiController extends AbstractFOSRestController
         $answers = $repository->findall();
         return $this->handleView($this->view($answers));
     }
+
     /**
      * @Rest\Get("api/responders/{id}")
      * @return Response
@@ -95,6 +95,7 @@ class ApiController extends AbstractFOSRestController
         $responders = $repository->findRespondersSlackIdByAdminId($id);
         return $this->handleView($this->view($responders));
     }
+
     /**
      * @Rest\Get("/api/poll/{id}")
      * @return Response
@@ -128,4 +129,3 @@ class ApiController extends AbstractFOSRestController
         }
     }
 }
-
