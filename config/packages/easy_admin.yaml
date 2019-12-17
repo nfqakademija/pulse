@@ -94,6 +94,7 @@ easy_admin:
           - answers
         actions:
           - 'graph'
+          - show
     Poll:
       class: App\Entity\Poll
       label: "Poll"

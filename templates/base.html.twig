@@ -21,19 +21,19 @@
                 {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SUPER_ADMIN") %}
                     <a class="nav-item nav-link" href="{{ path('about') }}">About</a>
                 {% endif %}
-                <!-- Super admin links -->
-                {% if is_granted("ROLE_SUPER_ADMIN") %}
-                    <!-- Responder import page link -->
-                    <a class="nav-item nav-link" href="{{ path('responder_import') }}">Import Responders</a>
-                    <!-- Bot settings link -->
-                    <a class="nav-item nav-link" href="{{ path('bot_settings') }}">Bot Settings</a>
-                {% endif %}
                 <!-- Admin links -->
                 {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SUPER_ADMIN") %}
                     <!-- Admin panel link -->
                     <a class="nav-item nav-link" href="{{ path('easyadmin') }}">Admin Panel</a>
                     <!-- Admin polls link -->
                     <a class="nav-item nav-link" href="{{ path('easyadmin', {'entity': 'Poll', 'action': 'myList'}) }}">Polls</a>
+                {% endif %}
+                <!-- Super admin links -->
+                {% if is_granted("ROLE_SUPER_ADMIN") %}
+                    <!-- Responder import page link -->
+                    <a class="nav-item nav-link" href="{{ path('responder_import') }}">Import Responders</a>
+                    <!-- Bot settings link -->
+                    <a class="nav-item nav-link" href="{{ path('bot_settings') }}">Bot Settings</a>
                 {% endif %}
                 <!-- Logout link -->
                 {% if app.user %}
