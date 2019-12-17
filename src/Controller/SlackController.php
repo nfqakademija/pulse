@@ -6,7 +6,9 @@ use Maknz\Slack\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -14,11 +16,15 @@ class SlackController extends AbstractController
 {
     /**
      * @Route(path = "/ask_poll/team", name = "send_team")
+     * @param Request $request
+     * @param SurveyController $s
+     * @return RedirectResponse
      */
-    public function triggerTheBotForTeam(Request $request)
+    public function triggerTheBotForTeam(Request $request, SurveyController $s)
     {
         $id = $request->query->get('id');
-        $msg = 'team_poll: ' . $id;
+        $surveyId = $s->addSurvey($id, "team");
+        $msg = 'team_survey: ' . $surveyId;
         $this->triggerTheBot($msg);
 
         return $this->redirectToRoute('easyadmin', [
@@ -29,12 +35,17 @@ class SlackController extends AbstractController
 
     /**
      * @Route(path = "/ask_poll/workspace", name = "send_workspace")
+     * @param Request $request
+     * @param SurveyController $s
+     * @return RedirectResponse
      */
-    public function triggerTheBotForWorkspace(Request $request)
+    public function triggerTheBotForWorkspace(Request $request, SurveyController $s)
     {
         $id = $request->query->get('id');
-        $msg = 'workspace_poll: ' . $id;
+        $surveyId = $s->addSurvey($id, "workspace");
+        $msg = 'workspace_survey: ' . $surveyId;
         $this->triggerTheBot($msg);
+
 
         return $this->redirectToRoute('easyadmin', [
             'action' => 'list',
@@ -58,8 +69,12 @@ class SlackController extends AbstractController
         }
     }
 
+
     /**
      * @Route("/superadmin/bot/settings", name="bot_settings", methods={"GET", "POST"})
+     * @param Request $request
+     * @param KernelInterface $kernelInterface
+     * @return RedirectResponse|Response
      */
     public function botSettings(Request $request, KernelInterface $kernelInterface)
     {
@@ -67,7 +82,7 @@ class SlackController extends AbstractController
 
         $form = $this->createFormBuilder($botSettings)
             ->add('token', TextType::class, [
-                'label' => 'BOT_TOKEN',
+                'label' => 'Bot Token',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => $botSettings['token'],
@@ -76,7 +91,7 @@ class SlackController extends AbstractController
                 ],
             ])
             ->add('signingSecret', TextType::class, [
-                'label' => 'SLACK_SIGNING_SECRET',
+                'label' => 'Slack Signing Secret',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => $botSettings['signingSecret'],
@@ -85,10 +100,18 @@ class SlackController extends AbstractController
                 ],
             ])
             ->add('webHook', TextType::class, [
-                'label' => 'WEB_HOOK',
+                'label' => 'Web Hook',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => urldecode($botSettings['webHook']),
+                    'style' => 'margin-bottom: 20px;',
+                ],
+            ])
+            ->add('workspaceUrl', TextType::class, [
+                'label' => 'Workspace URL',
+                'attr' => [
+                    'class' => 'form-control',
+                    'value' => urldecode($botSettings['workspaceUrl']),
                     'style' => 'margin-bottom: 20px;',
                 ],
             ])
@@ -109,7 +132,9 @@ class SlackController extends AbstractController
 
             $newWebHook = $form["webHook"]->getData();
 
-            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret, $newWebHook);
+            $newWorkspaceUrl = $form["workspaceUrl"]->getData();
+
+            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret, $newWebHook, $newWorkspaceUrl);
 
             return $this->redirectToRoute('easyadmin');
         }
@@ -124,9 +149,9 @@ class SlackController extends AbstractController
     {
         $projectDir = $kernelInterface->getProjectDir();
 
-        $envFile = $projectDir . '/.env';
+        $envFile = $projectDir . '/.env.local';
 
-        $botSettings = array('token' => '', 'signingSecret' => '', 'webHook' => '');
+        $botSettings = array('token' => '', 'signingSecret' => '', 'webHook' => '', 'workspaceUrl' => '');
 
         $reading = fopen($envFile, 'r');
 
@@ -136,6 +161,7 @@ class SlackController extends AbstractController
             if (stristr($line, 'BOT_TOKEN')
                 || stristr($line, 'SLACK_SIGNING_SECRET')
                 || stristr($line, 'WEB_HOOK')
+                || stristr($line, 'WORKSPACE_URL')
             ) {
                 $lineChars = str_split($line);
 
@@ -149,8 +175,10 @@ class SlackController extends AbstractController
                                     $botSettings['token'] .= $lineChars[$i];
                                 } elseif (stristr($line, 'SLACK_SIGNING_SECRET')) {
                                     $botSettings['signingSecret'] .= $lineChars[$i];
-                                } else {
+                                } elseif (stristr($line, 'WEB_HOOK')) {
                                     $botSettings['webHook'] .= $lineChars[$i];
+                                } else {
+                                    $botSettings['workspaceUrl'] .= $lineChars[$i];
                                 }
                             } else {
                                 break;
@@ -171,11 +199,13 @@ class SlackController extends AbstractController
         KernelInterface $kernelInterface,
         string $newToken,
         string $newSigningSecret,
-        string $newWebHook
-    ) {
+        string $newWebHook,
+        string $newWorkspaceUrl
+    )
+    {
         $projectDir = $kernelInterface->getProjectDir();
 
-        $envFile = $projectDir . '/.env';
+        $envFile = $projectDir . '/.env.local';
 
         $envTmpFile = $projectDir . '/env.tmp';
 
@@ -206,6 +236,10 @@ class SlackController extends AbstractController
                 $replaced = true;
             } elseif (stristr($line, 'WEB_HOOK')) {
                 $line = 'WEB_HOOK="' . urlencode($newWebHook) . '"' . "\n";
+
+                $replaced = true;
+            } elseif (stristr($line, 'WORKSPACE_URL')) {
+                $line = 'WORKSPACE_URL="' . urlencode($newWorkspaceUrl) . '"' . "\n";
 
                 $replaced = true;
             }

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Survey;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * @method Survey|null find($id, $lockMode = null, $lockVersion = null)
@@ -35,33 +36,17 @@ class SurveyRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
-
-    // /**
-    //  * @return Survey[] Returns an array of Survey objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param $id
+     * @return Survey|null
+     * @throws NonUniqueResultException
+     */
+    public function findOneByPollId($id): ?Survey
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('s.id', 'ASC')
-            ->setMaxResults(10)
+            ->andWhere('s.id = :val')
+            ->setParameter('val', $id)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getOneOrNullResult();
     }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Survey
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

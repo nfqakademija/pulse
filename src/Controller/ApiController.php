@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Answer;
 use App\Entity\Poll;
 use App\Entity\Responder;
+use App\Entity\Survey;
 use App\Form\AnswerType;
 use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -57,13 +58,11 @@ class ApiController extends AbstractFOSRestController
             header('HTTP/1.1 400 Bad Request', true, 400);
             exit;
         }
-        var_dump($message['actions'][0]['value']);
-        var_dump("skyriklis");
         var_dump($message);
 
         $post_data = (array('value' => $message['actions'][0]['value'],
             'responder' => $message['user']['id'],
-            'question' => 1));
+            'survey' => $message['callback_id']));
         $form->submit($post_data);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -109,24 +108,14 @@ class ApiController extends AbstractFOSRestController
     }
 
     /**
-     * @Route("/api/get/full/poll/{id}", name="api/get/full/poll")
+     * @Route("/api/get/full/survey/{id}", name="api/get/full/poll")
      * @param $id
-     * @return Response
+     * @return Survey
      */
-    public function sendForm($id): Response
+    public function sendForm($id): Survey
     {
-        $em = $this->getDoctrine()->getManager();
-        $query = $em->createQuery(
-            'SELECT q,o
-            FROM App:Question q
-            JOIN q.options o
-            WHERE q.poll = :id'
-        )->setParameter('id', $id);
-        $return = $query->getArrayResult();
-        try {
-            return new JsonResponse($return);
-        } catch (NoResultException $e) {
-            return null;
-        }
+        $repository = $this->getDoctrine()->getRepository(Survey::class);
+        $survey = $repository->findOneByPollId($id);
+        return $survey;
     }
 }
