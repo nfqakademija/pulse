@@ -18,11 +18,13 @@
                     <div class="card" style="margin: 20px;">
                         <div class="card-header">
                             <b>
+                                 <p><H3>File content: </H3></p><p>SlackId   Email   SlackName   Department   JobTitle   TeamLead   FullName   City  Team</p>
                                 {{ form_start(form, { 'attr': {'style': 'background-color: inherit;' } }) }}
                                 {{ form_widget(form) }}
                                 {{ form_end(form) }}
                             </b>
                         </div>
+
                     </div>
                     <div style="margin-top: 20px;">
                         {% for label, messages in app.flashes %}

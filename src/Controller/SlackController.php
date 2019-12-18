@@ -71,7 +71,7 @@ class SlackController extends AbstractController
      * @Route("/superadmin/bot/settings", name="bot_settings", methods={"GET", "POST"})
      * @param Request $request
      * @param KernelInterface $kernelInterface
-     * @return RedirectResponse|Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function botSettings(Request $request, KernelInterface $kernelInterface)
     {
@@ -134,6 +134,10 @@ class SlackController extends AbstractController
 
             return $this->redirectToRoute('easyadmin');
         }
+        return $this->render('bot/settings.html.twig', [
+            'title' => 'Bot Settings',
+            'form' => $form->createView(),
+        ]);
     }
 
     private function getBotSettingsFromEnv(KernelInterface $kernelInterface): array
