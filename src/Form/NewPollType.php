@@ -29,7 +29,7 @@ class NewPollType extends AbstractType
             ->add('save', SubmitType::class, [
                 'label' => 'Save',
                 'attr' => [
-                    'class' => 'btn btn-primary btn-block',
+                    'class' => 'btn btn-primary',
                 ],
             ]);
     }

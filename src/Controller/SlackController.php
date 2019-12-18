@@ -22,7 +22,6 @@ class SlackController extends AbstractController
     public function triggerTheBotForTeam(Request $request, SurveyController $s)
     {
         $id = $request->query->get('id');
-        $msg = 'team_poll: ' . $id;
         $surveyId = $s->addSurvey($id, "team");
         $msg = 'team_survey: ' . $surveyId;
         $this->triggerTheBot($msg);
@@ -41,7 +40,6 @@ class SlackController extends AbstractController
     public function triggerTheBotForWorkspace(Request $request, SurveyController $s)
     {
         $id = $request->query->get('id');
-        $msg = 'workspace_poll: ' . $id;
         $surveyId = $s->addSurvey($id, "workspace");
         $msg = 'workspace_survey: ' . $surveyId;
         $this->triggerTheBot($msg);
