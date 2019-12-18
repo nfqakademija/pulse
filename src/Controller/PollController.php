@@ -141,7 +141,7 @@ class PollController extends EasyAdminController
             }
         }
 
-        $this->getDoctrine()->getRepository(Option::class)->deleteByQuestion($questionId);
+        $entityManager = $this->getDoctrine()->getManager();
 
         $entityManager->remove($question);
         $entityManager->flush();
