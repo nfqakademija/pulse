@@ -3,10 +3,26 @@
 namespace App\Controller;
 
 use App\Entity\Answer;
+use App\Entity\Poll;
+use App\Entity\Survey;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\EasyAdminController;
 
 class SurveyController extends EasyAdminController
 {
+    public function addSurvey($pollId, $name)
+    {
+        $poll = $this->getDoctrine()->getRepository(Poll::class)->find($pollId);
+        $entityManager = $this->getDoctrine()->getManager();
+        $survey = new Survey();
+        $survey->setDatetime(new \DateTime('now'));
+        $survey->setName($poll->getName() . " survey for " . $name);
+        $survey->setPoll($poll);
+        $entityManager->persist($survey);
+        $entityManager->flush();
+        $id = $survey->getId();
+        return $id;
+    }
+
     public function graphSurveyAction()
     {
         $survey = $this->request->attributes->get('easyadmin')['item'];

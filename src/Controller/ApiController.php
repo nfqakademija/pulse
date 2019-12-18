@@ -5,11 +5,10 @@ namespace App\Controller;
 use App\Entity\Answer;
 use App\Entity\Poll;
 use App\Entity\Responder;
+use App\Entity\Survey;
 use App\Form\AnswerType;
-use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,6 +19,51 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ApiController extends AbstractFOSRestController
 {
+    /**
+     * @Rest\Get("api/answers")
+     * @return Response
+     */
+    public function getAnswer()
+    {
+        $repository = $this->getDoctrine()->getRepository(Answer::class);
+        $answers = $repository->findall();
+        return $this->handleView($this->view($answers));
+    }
+
+    /**
+     * @Rest\Get("api/responders/{id}")
+     * @return Response
+     */
+    public function getResponders($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Responder::class);
+        $responders = $repository->findRespondersSlackIdByAdminId($id);
+        return $this->handleView($this->view($responders));
+    }
+
+    /**
+     * @Rest\Get("/api/poll/{id}")
+     * @return Response
+     */
+    public function getPollById($id)
+    {
+        $repository = $this->getDoctrine()->getRepository(Poll::class);
+        $poll = $repository->findPollById($id);
+        return $this->handleView($this->view($poll));
+    }
+
+    /**
+     * @Route("/api/get/full/survey/{id}", name="api/get/full/poll")
+     * @param $id
+     * @return Survey
+     */
+    public function sendForm($id): Survey
+    {
+        $repository = $this->getDoctrine()->getRepository(Survey::class);
+        $survey = $repository->findOneByPollId($id);
+        return $survey;
+    }
+
     /**
      * @Rest\Post("api/store_answer")
      * @param Request $request
@@ -63,7 +107,7 @@ class ApiController extends AbstractFOSRestController
 
         $post_data = (array('value' => $message['actions'][0]['value'],
             'responder' => $message['user']['id'],
-            'question' => 1));
+            'survey' => $message['callback_id']));
         $form->submit($post_data);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -73,60 +117,5 @@ class ApiController extends AbstractFOSRestController
             return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_CREATED));
         }
         return $this->handleView($this->view($form->getErrors()));
-    }
-
-    /**
-     * @Rest\Get("api/answers")
-     * @return Response
-     */
-    public function getAnswer()
-    {
-        $repository = $this->getDoctrine()->getRepository(Answer::class);
-        $answers = $repository->findall();
-        return $this->handleView($this->view($answers));
-    }
-
-    /**
-     * @Rest\Get("api/responders/{id}")
-     * @return Response
-     */
-    public function getResponders($id)
-    {
-        $repository = $this->getDoctrine()->getRepository(Responder::class);
-        $responders = $repository->findRespondersSlackIdByAdminId($id);
-        return $this->handleView($this->view($responders));
-    }
-
-    /**
-     * @Rest\Get("/api/poll/{id}")
-     * @return Response
-     */
-    public function getPollById($id)
-    {
-        $repository = $this->getDoctrine()->getRepository(Poll::class);
-        $poll = $repository->findPollById($id);
-        return $this->handleView($this->view($poll));
-    }
-
-    /**
-     * @Route("/api/get/full/poll/{id}", name="api/get/full/poll")
-     * @param $id
-     * @return Response
-     */
-    public function sendForm($id): Response
-    {
-        $em = $this->getDoctrine()->getManager();
-        $query = $em->createQuery(
-            'SELECT q,o
-            FROM App:Question q
-            JOIN q.options o
-            WHERE q.poll = :id'
-        )->setParameter('id', $id);
-        $return = $query->getArrayResult();
-        try {
-            return new JsonResponse($return);
-        } catch (NoResultException $e) {
-            return null;
-        }
     }
 }

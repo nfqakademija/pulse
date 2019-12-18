@@ -6,6 +6,7 @@ use Maknz\Slack\Client;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,13 +15,17 @@ class SlackController extends AbstractController
 {
     /**
      * @Route(path = "/ask_poll/team", name = "send_team")
+     * @param Request $request
+     * @param SurveyController $s
+     * @return RedirectResponse
      */
-    public function triggerTheBotForTeam(Request $request)
+    public function triggerTheBotForTeam(Request $request, SurveyController $s)
     {
         $id = $request->query->get('id');
         $msg = 'team_poll: ' . $id;
+        $surveyId = $s->addSurvey($id, "team");
+        $msg = 'team_survey: ' . $surveyId;
         $this->triggerTheBot($msg);
-
         return $this->redirectToRoute('easyadmin', [
             'action' => 'list',
             'entity' => 'Poll',
@@ -29,13 +34,17 @@ class SlackController extends AbstractController
 
     /**
      * @Route(path = "/ask_poll/workspace", name = "send_workspace")
+     * @param Request $request
+     * @param SurveyController $s
+     * @return RedirectResponse
      */
-    public function triggerTheBotForWorkspace(Request $request)
+    public function triggerTheBotForWorkspace(Request $request, SurveyController $s)
     {
         $id = $request->query->get('id');
         $msg = 'workspace_poll: ' . $id;
+        $surveyId = $s->addSurvey($id, "workspace");
+        $msg = 'workspace_survey: ' . $surveyId;
         $this->triggerTheBot($msg);
-
         return $this->redirectToRoute('easyadmin', [
             'action' => 'list',
             'entity' => 'Poll',
@@ -60,6 +69,9 @@ class SlackController extends AbstractController
 
     /**
      * @Route("/superadmin/bot/settings", name="bot_settings", methods={"GET", "POST"})
+     * @param Request $request
+     * @param KernelInterface $kernelInterface
+     * @return RedirectResponse|Response
      */
     public function botSettings(Request $request, KernelInterface $kernelInterface)
     {
@@ -67,7 +79,7 @@ class SlackController extends AbstractController
 
         $form = $this->createFormBuilder($botSettings)
             ->add('token', TextType::class, [
-                'label' => 'BOT Token',
+                'label' => 'Bot Token',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => $botSettings['token'],
@@ -122,11 +134,6 @@ class SlackController extends AbstractController
 
             return $this->redirectToRoute('easyadmin');
         }
-
-        return $this->render('bot/settings.html.twig', [
-            'title' => 'Bot Settings',
-            'form' => $form->createView(),
-        ]);
     }
 
     private function getBotSettingsFromEnv(KernelInterface $kernelInterface): array

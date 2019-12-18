@@ -29,13 +29,13 @@ class SlackBot
 
     public function getTriggerForTeam(): void
     {
-        $this->botman->hears('team_poll: {id}', function ($bot, $id) {
-            $data = $this->getPoll($id);
+        $this->botman->hears('team_survey: {id}', function ($bot, $id) {
+            $data = $this->getSurvey($id);
             $index = 0;
-            foreach ($data as $question) {
-                $question = $this->handleData($data, $index);
+            foreach ($data["poll"]["questions"] as $question) {
+                $question = $this->handleData($data["poll"]["questions"], $index, $data["id"]);
                 $index++;
-                $adminId = $this->getAdminIdWhoSendPoll($id);
+                $adminId = $data['poll']['user']['id'];
                 $user_data = $this->getRespondersSlackIdsByAdmin($adminId);
                 foreach ($user_data as $user) {
                     $bot->say($question, $user['slackId']);
@@ -46,11 +46,11 @@ class SlackBot
 
     public function getTriggerForWorkspace(): void
     {
-        $this->botman->hears('workspace_poll: {id}', function ($bot, $id) {
-            $data = $this->getPoll($id);
+        $this->botman->hears('workspace_survey: {id}', function ($bot, $id) {
+            $data = $this->getSurvey($id);
             $index = 0;
-            foreach ($data as $question) {
-                $question = $this->handleData($data, $index);
+            foreach ($data["poll"]["questions"] as $question) {
+                $question = $this->handleData($data["poll"]["questions"], $index, $data["id"]);
                 $index++;
                 $user_data = $this->getAllUsers();
                 foreach ($user_data as $user) {
@@ -58,18 +58,6 @@ class SlackBot
                 }
             }
         });
-    }
-
-    protected function getAdminIdWhoSendPoll($id)
-    {
-        $data = [];
-        try {
-            $data = json_decode(file_get_contents($this->host .
-                "/api/poll/$id"), true);
-        } catch (\Throwable $e) {
-            var_dump($e);
-        }
-        return $data[0]['user'];
     }
 
     protected function getRespondersSlackIdsByAdmin($id)
@@ -84,12 +72,12 @@ class SlackBot
         return $data;
     }
 
-    protected function getPoll(int $id)
+    protected function getSurvey(int $id)
     {
         $data = [];
         try {
             $data = json_decode(file_get_contents($this->host .
-                "/api/get/full/poll/$id"), true);
+                "/api/get/full/survey/$id"), true);
         } catch (\Throwable $e) {
             var_dump($e);
         }
@@ -110,12 +98,12 @@ class SlackBot
         return $user_data;
     }
 
-    protected function handleData($data, $index)
+    protected function handleData($data, $index, $surveyId)
     {
         $question = $data[$index]["question"];
         $options = $data[$index]["options"];
         $question = Question::create($question)
-            ->callbackId($question);
+            ->callbackId($surveyId);
 
         foreach ($options as $option) {
             $question->addButtons([Button::create($option["value"])
@@ -150,76 +138,5 @@ class SlackBot
         foreach ($users as $user) {
             $this->botman->say($question, $user);
         }
-    }
-
-    public function sendMessageWithUsersHooks()
-    {
-        $this->botman->hears('hook', function ($bot) {
-            $urls = ['https://hooks.slack.com/services/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'];
-
-            $channel = '#general';
-            $bot_name = 'Webhook';
-            $icon = ':alien:';
-            $message = 'Your message';
-            $attachments = array([
-                "blocks" => [
-                    [
-                        "type" => "section",
-                        "text" => [
-                            "type" => "mrkdwn",
-                            "text" => "Kaip siandien jauciates?"
-                        ],
-                        "accessory" => [
-                            "type" => "static_select",
-                            "placeholder" => [
-                                "type" => "plain_text",
-                                "text" => "Select an item",
-                                "emoji" => true
-                            ],
-                            "options" => [
-                                [
-                                    "text" => [
-                                        "type" => "plain_text",
-                                        "text" => "Puikiai",
-                                        "emoji" => true
-                                    ],
-                                    "value" => "value-2"
-                                ],
-                                [
-                                    "text" => [
-                                        "type" => "plain_text",
-                                        "text" => "Gerai",
-                                        "emoji" => true
-                                    ],
-                                    "value" => "value-2"
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-
-            ]);
-            $data = array(
-                'channel' => $channel,
-                'username' => $bot_name,
-                'text' => $attachments,
-                'icon_emoji' => $icon,
-                'attachments' => $attachments
-            );
-            foreach ($urls as $url) {
-                $data_string = json_encode($data);
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($data_string)));
-                //Execute CURL
-                $result = curl_exec($ch);
-            }
-
-            return $result;
-        });
     }
 }
