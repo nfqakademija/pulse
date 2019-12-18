@@ -67,7 +67,7 @@ class SlackController extends AbstractController
 
         $form = $this->createFormBuilder($botSettings)
             ->add('token', TextType::class, [
-                'label' => 'BOT_TOKEN',
+                'label' => 'BOT Token',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => $botSettings['token'],
@@ -76,7 +76,7 @@ class SlackController extends AbstractController
                 ],
             ])
             ->add('signingSecret', TextType::class, [
-                'label' => 'SLACK_SIGNING_SECRET',
+                'label' => 'Slack Signing Secret',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => $botSettings['signingSecret'],
@@ -85,10 +85,18 @@ class SlackController extends AbstractController
                 ],
             ])
             ->add('webHook', TextType::class, [
-                'label' => 'WEB_HOOK',
+                'label' => 'Web hook',
                 'attr' => [
                     'class' => 'form-control',
                     'value' => urldecode($botSettings['webHook']),
+                    'style' => 'margin-bottom: 20px;',
+                ],
+            ])
+            ->add('workspaceUrl', TextType::class, [
+                'label' => 'Workspace URL',
+                'attr' => [
+                    'class' => 'form-control',
+                    'value' => urldecode($botSettings['workspaceUrl']),
                     'style' => 'margin-bottom: 20px;',
                 ],
             ])
@@ -109,7 +117,8 @@ class SlackController extends AbstractController
 
             $newWebHook = $form["webHook"]->getData();
 
-            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret, $newWebHook);
+            $newWorkspaceUrl = $form["workspaceUrl"]->getData();
+            $this->setBotSettingsInEnv($kernelInterface, $newToken, $newSigningSecret, $newWebHook, $newWorkspaceUrl);
 
             return $this->redirectToRoute('easyadmin');
         }
@@ -124,9 +133,9 @@ class SlackController extends AbstractController
     {
         $projectDir = $kernelInterface->getProjectDir();
 
-        $envFile = $projectDir . '/.env';
+        $envFile = $projectDir . '/.env.local';
 
-        $botSettings = array('token' => '', 'signingSecret' => '', 'webHook' => '');
+        $botSettings = array('token' => '', 'signingSecret' => '', 'webHook' => '', 'workspaceUrl' => '');
 
         $reading = fopen($envFile, 'r');
 
@@ -136,6 +145,7 @@ class SlackController extends AbstractController
             if (stristr($line, 'BOT_TOKEN')
                 || stristr($line, 'SLACK_SIGNING_SECRET')
                 || stristr($line, 'WEB_HOOK')
+                || stristr($line, 'WORKSPACE_URL')
             ) {
                 $lineChars = str_split($line);
 
@@ -149,8 +159,10 @@ class SlackController extends AbstractController
                                     $botSettings['token'] .= $lineChars[$i];
                                 } elseif (stristr($line, 'SLACK_SIGNING_SECRET')) {
                                     $botSettings['signingSecret'] .= $lineChars[$i];
-                                } else {
+                                } elseif (stristr($line, 'WEB_HOOK')) {
                                     $botSettings['webHook'] .= $lineChars[$i];
+                                } else {
+                                    $botSettings['workspaceUrl'] .= $lineChars[$i];
                                 }
                             } else {
                                 break;
@@ -171,11 +183,13 @@ class SlackController extends AbstractController
         KernelInterface $kernelInterface,
         string $newToken,
         string $newSigningSecret,
-        string $newWebHook
-    ) {
+        string $newWebHook,
+        string $newWorkspaceUrl
+    )
+    {
         $projectDir = $kernelInterface->getProjectDir();
 
-        $envFile = $projectDir . '/.env';
+        $envFile = $projectDir . '/.env.local';
 
         $envTmpFile = $projectDir . '/env.tmp';
 
@@ -208,7 +222,11 @@ class SlackController extends AbstractController
                 $line = 'WEB_HOOK="' . urlencode($newWebHook) . '"' . "\n";
 
                 $replaced = true;
+            } elseif (stristr($line, 'WORKSPACE_URL')) {
+                $line = 'WORKSPACE_URL="' . urlencode($newWorkspaceUrl) . '"' . "\n";
+                $replaced = true;
             }
+
 
             fputs($writing, $line);
         }
