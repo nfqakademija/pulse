@@ -92,7 +92,7 @@ class AppCustomAuthenticator extends AbstractFormLoginAuthenticator
         if ($this->authorizationChecker->isGranted('ROLE_ADMIN')
             || $this->authorizationChecker->isGranted('ROLE_SUPER_ADMIN')
         ) {
-            return new RedirectResponse($this->urlGenerator->generate('easyadmin'));
+            return new RedirectResponse($this->urlGenerator->generate('about'));
         } else {
             return new RedirectResponse($this->urlGenerator->generate('home'));
         }
