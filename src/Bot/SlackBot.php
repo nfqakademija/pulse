@@ -29,8 +29,10 @@ class SlackBot
 
     public function getTriggerForTeam(): void
     {
+        var_dump("girdi teama");
         $this->botman->hears('team_survey: {id}', function ($bot, $id) {
             $data = $this->getSurvey($id);
+            var_dump($data);
             $index = 0;
             foreach ($data["poll"]["questions"] as $question) {
                 $question = $this->handleData($data["poll"]["questions"], $index, $data["id"]);
@@ -46,6 +48,7 @@ class SlackBot
 
     public function getTriggerForWorkspace(): void
     {
+        var_dump("girdi space");
         $this->botman->hears('workspace_survey: {id}', function ($bot, $id) {
             $data = $this->getSurvey($id);
             $index = 0;

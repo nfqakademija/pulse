@@ -21,6 +21,7 @@ class SlackController extends AbstractController
      */
     public function triggerTheBotForTeam(Request $request, SurveyController $s)
     {
+
         $id = $request->query->get('id');
         $surveyId = $s->addSurvey($id, "team");
         $msg = 'team_survey: ' . $surveyId;
@@ -194,8 +195,7 @@ class SlackController extends AbstractController
         string $newSigningSecret,
         string $newWebHook,
         string $newWorkspaceUrl
-    )
-    {
+    ) {
         $projectDir = $kernelInterface->getProjectDir();
 
         $envFile = $projectDir . '/.env.local';
