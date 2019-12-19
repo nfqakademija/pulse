@@ -101,20 +101,19 @@ class ApiController extends AbstractFOSRestController
             header('HTTP/1.1 400 Bad Request', true, 400);
             exit;
         }
-        var_dump($message['actions'][0]['value']);
-        var_dump("skyriklis");
         var_dump($message);
 
-        $post_data = (array('value' => $message['actions'][0]['value'],
+        $post_data = (array('value' => $message['actions'][0]['name'],
             'responder' => $message['user']['id'],
-            'survey' => $message['callback_id']));
+            'survey' => $message['callback_id'],
+            'answerOption'=>$message['actions'][0]['value']));
         $form->submit($post_data);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $em->persist($answer);
             $em->flush();
-            return $this->handleView($this->view(['status' => 'ok'], Response::HTTP_CREATED));
+            return null;
         }
         return $this->handleView($this->view($form->getErrors()));
     }

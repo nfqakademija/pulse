@@ -12,4 +12,5 @@ $bot = new SlackBot($_ENV["BOT_TOKEN"], "http://127.0.0.1:8000");
 $bot->getTriggerForTeam();
 $bot->getTriggerForWorkspace();
 
+
 $bot->loop->run();

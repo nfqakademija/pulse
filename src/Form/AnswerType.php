@@ -16,6 +16,7 @@ class AnswerType extends AbstractType
             ->add('value')
             ->add('responder')
             ->add('question')
+            ->add('answerOption')
             ->add('survey')
             ->add('save', SubmitType::class);
     }

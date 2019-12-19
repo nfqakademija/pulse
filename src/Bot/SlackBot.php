@@ -107,7 +107,7 @@ class SlackBot
 
         foreach ($options as $option) {
             $question->addButtons([Button::create($option["value"])
-                ->value($option["value"])]);
+                ->value($option["id"])]);
         };
         return $question;
     }
