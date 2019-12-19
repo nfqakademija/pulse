@@ -31,17 +31,16 @@ class QuestionRepository extends ServiceEntityRepository
             ->setParameter('pollId', $pollId)
             ->orderBy('q.questionNumber', 'ASC')
             ->getQuery()
-            ->getResult()
-            ;
+            ->getResult();
     }
+
     public function findOneByPollId($id)
     {
         try {
             return $this->getEntityManager()
                 ->createQuery(
-                    'SELECT q,o
+                    'SELECT  q.id,q.question
                 FROM App:Question q
-                JOIN q.options o
                 WHERE q.poll = :id'
                 )
                 ->setParameter('id', $id)

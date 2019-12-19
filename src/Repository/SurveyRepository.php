@@ -38,12 +38,17 @@ class SurveyRepository extends ServiceEntityRepository
 
     /**
      * @param $id
-     * @return Survey|null
+     * @return mixed
      * @throws NonUniqueResultException
      */
-    public function findOneByPollId($id): ?Survey
+    public function findOneByPollId($id)
     {
         return $this->createQueryBuilder('s')
+            ->select('s.id, s.name,
+            p.id as pollId, p.name as pollName,
+            u.id as user')
+            ->innerJoin('s.poll', 'p')
+            ->innerJoin('p.user', 'u')
             ->andWhere('s.id = :val')
             ->setParameter('val', $id)
             ->getQuery()

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Option;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * @method Option|null find($id, $lockMode = null, $lockVersion = null)
@@ -28,8 +29,22 @@ class OptionRepository extends ServiceEntityRepository
             ->andWhere('o.question = :questionId')
             ->setParameter('questionId', $questionId)
             ->getQuery()
-            ->execute()
-        ;
+            ->execute();
+    }
+
+    public function findOneByQuestionId($id)
+    {
+        try {
+            return $this->getEntityManager()
+                ->createQuery(
+                    'SELECT o.value ,o.id
+                FROM App:Option o 
+                WHERE o.question = :id'
+                )
+                ->setParameter('id', $id)
+                ->getResult();
+        } catch (NonUniqueResultException $e) {
+        }
     }
 
     // /**

@@ -3,7 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Answer;
-use App\Entity\Poll;
+use App\Entity\Option;
+use App\Entity\Question;
 use App\Entity\Responder;
 use App\Entity\Survey;
 use App\Form\AnswerType;
@@ -47,21 +48,35 @@ class ApiController extends AbstractFOSRestController
      */
     public function getPollById($id)
     {
-        $repository = $this->getDoctrine()->getRepository(Poll::class);
-        $poll = $repository->findPollById($id);
+        $repository = $this->getDoctrine()->getRepository(Option::class);
+        $poll = $repository->findOneQuestionId($id);
         return $this->handleView($this->view($poll));
     }
 
     /**
      * @Route("/api/get/full/survey/{id}", name="api/get/full/poll")
      * @param $id
-     * @return Survey
+     * @return array
      */
-    public function sendForm($id): Survey
+    public function sendForm($id)
     {
+        $data = [];
+
         $repository = $this->getDoctrine()->getRepository(Survey::class);
         $survey = $repository->findOneByPollId($id);
-        return $survey;
+        array_push($data, $survey);
+
+        $repository = $this->getDoctrine()->getRepository(Question::class);
+        $questions = $repository->findOneByPollId($survey['pollId']);
+        array_push($data, $questions);
+        $options = [];
+        $repository = $this->getDoctrine()->getRepository(Option::class);
+        foreach ($questions as $question) {
+            $option = $repository->findOneByQuestionId($question['id']);
+            array_push($options, $option);
+        }
+        array_push($data, $options);
+        return $data;
     }
 
     /**
@@ -101,12 +116,11 @@ class ApiController extends AbstractFOSRestController
             header('HTTP/1.1 400 Bad Request', true, 400);
             exit;
         }
-        var_dump($message);
 
         $post_data = (array('value' => $message['actions'][0]['name'],
             'responder' => $message['user']['id'],
             'survey' => $message['callback_id'],
-            'answerOption'=>$message['actions'][0]['value']));
+            'answerOption' => $message['actions'][0]['value']));
         $form->submit($post_data);
 
         if ($form->isSubmitted() && $form->isValid()) {
