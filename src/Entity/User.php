@@ -5,7 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -45,7 +45,6 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity="App\Entity\Responder", mappedBy="teamLead")
      */
     private $responders;
-
 
     public function __construct()
     {
@@ -114,8 +113,8 @@ class User implements UserInterface
 
     public function setPassword(string $password): self
     {
-        $hash = password_hash($password, PASSWORD_ARGON2I);
-        $this->password = $hash;
+        $encoder = new NativePasswordEncoder();
+        $this->password = $encoder->encodePassword($password, null);
 
         return $this;
     }

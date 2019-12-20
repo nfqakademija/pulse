@@ -78,7 +78,7 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <div class="card" style="margin-bottom: 20px;">
+                        <div class="card" style="margin-bottom: 20px; border-style: solid; border-width: 5px;">
                             <div class="card-header">
                                 <button class="btn btn-primary add-question"
                                         data-poll-id="{{ form.vars.value.id }}"
@@ -92,7 +92,10 @@
                         </div>
                     {% endif %}
                 </div>
-                {{ form_end(form) }}
+                {{ form_row(form.save) }}
+                <div class="d-none">
+                    {{ form_end(form) }}
+                </div>
             {% endblock %}
         </section>
         <section class="content-footer">
