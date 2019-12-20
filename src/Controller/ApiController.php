@@ -127,7 +127,7 @@ class ApiController extends AbstractFOSRestController
             $em = $this->getDoctrine()->getManager();
             $em->persist($answer);
             $em->flush();
-            return null;
+            return $this->handleView($this->view(['Geros' => 'dienos'], Response::HTTP_CREATED));;
         }
         return $this->handleView($this->view($form->getErrors()));
     }

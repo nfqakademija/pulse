@@ -32,8 +32,6 @@ class SlackBot
 
         $this->botman->hears('team_survey: {id}', function ($bot, $id) {
             $data = $this->getSurvey($id);
-            var_dump($data[0]);
-            var_dump($data[1]);
             $index = 0;
             foreach ($data[1] as $question) {
                 $question = $question['question'];
@@ -60,8 +58,17 @@ class SlackBot
         $this->botman->hears('workspace_survey: {id}', function ($bot, $id) {
             $data = $this->getSurvey($id);
             $index = 0;
-            foreach ($data["poll"]["questions"] as $question) {
-                $question = $this->handleData($data["poll"]["questions"], $index, $data["id"]);
+
+            foreach ($data[1] as $question) {
+                $question = $question['question'];
+                $options = $data[2][$index];
+                $question = Question::create($question)
+                    ->callbackId($data[0]['id']);
+
+                foreach ($options as $option) {
+                    $question->addButtons([Button::create($option["value"])
+                        ->value($option["id"])]);
+                };
                 $index++;
                 $user_data = $this->getAllUsers();
                 foreach ($user_data as $user) {
